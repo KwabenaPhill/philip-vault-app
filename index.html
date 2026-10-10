@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Philip's Vault v20</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vault">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#000;color:#fff;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:92px}
+.app-header{text-align:center;padding:20px 16px 4px}
+.app-header .sub{font-size:10px;letter-spacing:4px;color:#C9C9C9;text-transform:uppercase;margin-bottom:2px}
+.app-header h1{font-size:24px;font-weight:900;background:linear-gradient(135deg,#FFFFFF,#B0B0B0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+.app-header .ver{font-size:11px;color:#666;font-weight:700;margin-left:5px}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;background:#0D0D0D;border-top:1px solid #333;z-index:100}
+.nav-btn{position:relative;flex:1;padding:13px 4px 11px;background:none;border:none;color:#C9C9C9;font-size:9px;font-weight:700;cursor:pointer;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s ease}
+.nav-btn .nav-icon{font-size:18px;transition:transform .18s ease}
+.nav-btn::before{content:'';position:absolute;top:0;left:18%;right:18%;height:3px;background:var(--tab);border-radius:0 0 3px 3px;transform:scaleX(0);transform-origin:center;transition:transform .2s cubic-bezier(.3,.8,.3,1)}
+.nav-btn.active::before{transform:scaleX(1)}
+.nav-btn.active{color:var(--tab)}
+.nav-btn.active .nav-icon{transform:translateY(-1px) scale(1.12)}
+#nav-vault{--tab:#BF5AF2}#nav-watching{--tab:#FF9F0A}#nav-learned{--tab:#30D158}#nav-stats{--tab:#32ADE6}#nav-backup{--tab:#FFD60A}
+.page{display:none;padding:12px 16px}
+.page.active{display:block;animation:pageIn .26s cubic-bezier(.22,.8,.3,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes popIn{0%{transform:scale(.95);opacity:0}60%{transform:scale(1.015)}100%{transform:scale(1);opacity:1}}
+@keyframes sheen{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+button{transition:transform .12s cubic-bezier(.3,.8,.3,1),filter .16s ease;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+button:active{transform:scale(.955);filter:brightness(1.12)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.summary-box{background:#161616;border-radius:14px;padding:12px 8px;border:1px solid #333;text-align:center}
+.summary-box .box-label{font-size:9px;color:#C9C9C9;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.summary-box .box-val{font-size:20px;font-weight:900}
+.sw-box{cursor:pointer;transition:border-color .18s,background .18s}
+.sw-box.on{background:#1C1C1C;border-color:var(--sel,#BF5AF2)}
+.sw-box.on .box-label{color:var(--sel,#BF5AF2)}
+.b-purple{color:#BF5AF2}.b-orange{color:#FF9F0A}.b-green{color:#30D158}
+.card{background:#161616;border-radius:16px;padding:16px 18px;margin-bottom:12px;border:1px solid #333}
+.bar-wrap{background:#000;border-radius:99px;height:8px;overflow:hidden;margin-top:9px}
+.bar-fill{height:100%;border-radius:99px;position:relative;overflow:hidden;transition:width .6s ease}
+.bar-fill::after{content:'';position:absolute;top:0;bottom:0;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:sheen 2.6s ease-in-out infinite}
+.row{display:flex;justify-content:space-between;align-items:center}
+.label-sm{font-size:12px;font-weight:600;color:#fff}
+.val-gold{font-size:13px;font-weight:800;color:#FFD60A}
+.section-title{font-size:13px;font-weight:800;color:#ccc;margin:14px 0 10px}
+
+/* CAPTURE BAR */
+.capture{background:linear-gradient(135deg,#1A0D2A,#0D0D0D);border:1px solid #3A2A4E;border-radius:16px;padding:14px;margin-bottom:12px}
+.capture h4{font-size:12px;font-weight:800;color:#BF5AF2;margin-bottom:4px}
+.capture p{font-size:11px;color:#8A8A8A;margin-bottom:11px;line-height:1.45}
+.cap-row{display:flex;gap:7px}
+.cap-btn{flex:1;padding:12px;border-radius:12px;border:none;font-size:12.5px;font-weight:800;cursor:pointer}
+.cap-ai{background:linear-gradient(135deg,#BF5AF2,#8E3FBE);color:#fff}
+.cap-link{background:#1E1E1E;border:1px solid #3A2A4E;color:#BF5AF2}
+.cap-manual{width:100%;margin-top:7px;padding:10px;border-radius:12px;background:transparent;border:1px dashed #333;color:#7A7A7A;font-size:11.5px;font-weight:700;cursor:pointer}
+
+.search-input{width:100%;padding:12px 14px;border-radius:14px;background:#101010;border:1px solid #2A2A2A;color:#fff;font-size:14px;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin-bottom:10px}
+.search-input:focus{outline:none;border-color:#BF5AF2}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:7px 13px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #333;background:#161616;color:#C9C9C9}
+.chip.on{background:#1E1E1E;border-color:var(--c,#BF5AF2);color:var(--c,#BF5AF2)}
+.sort-row{display:flex;gap:6px;margin-bottom:12px}
+.time-btn.on{background:#1A0D2A;border-color:#BF5AF2;color:#BF5AF2}
+.filter-note{font-size:11px;color:#BF5AF2;font-weight:700;margin:-4px 0 10px}
+.sort-btn{flex:1;padding:8px;border-radius:10px;background:#161616;border:1px solid #333;color:#8A8A8A;font-size:11px;font-weight:700;cursor:pointer}
+.sort-btn.on{background:#1E1E1E;border-color:#32ADE6;color:#32ADE6}
+
+.v-card{display:flex;gap:12px;background:#161616;border:1px solid #333;border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer;position:relative;overflow:hidden;animation:cardIn .3s cubic-bezier(.22,.8,.3,1) both;transition:border-color .2s,transform .16s}
+.v-card:active{transform:scale(.992)}
+.v-card:nth-child(2){animation-delay:.035s}.v-card:nth-child(3){animation-delay:.07s}
+.v-card:nth-child(4){animation-delay:.105s}.v-card:nth-child(5){animation-delay:.14s}
+.v-card:nth-child(n+6){animation-delay:.17s}
+.v-card.pri-now{border-color:#4A1F1A;background:#120A0A}
+.v-card.learned{background:#0D1F0D;border-color:#1E3A2A}
+.v-card.bare{border-style:dashed;border-color:#3A2A4E}
+.edge{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--e,#BF5AF2)}
+.thumb{width:78px;height:100px;flex:0 0 auto;border-radius:11px;object-fit:cover;background:#0D0D0D;border:1px solid #2A2A2A}
+.thumb-ph{width:78px;height:100px;flex:0 0 auto;border-radius:11px;background:linear-gradient(145deg,#1A1A1A,#0D0D0D);border:1px solid #2A2A2A;display:flex;align-items:center;justify-content:center;font-size:26px;opacity:.5}
+.v-meta{flex:1;min-width:0}
+.v-title{font-size:14px;font-weight:800;line-height:1.3;margin-bottom:3px}
+.v-who{font-size:11px;font-weight:700;color:#BF5AF2;margin-bottom:5px}
+.v-tags{font-size:11px;color:#8A8A8A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:7px}
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:9px;font-weight:800;letter-spacing:.3px;padding:3px 8px;border-radius:99px;border:1px solid transparent}
+.bd-cls{background:#0D1A2A;color:#32ADE6;border-color:#1A2A3E}
+.bd-len{background:#1A1A1A;color:#A0A0A0;border-color:#2A2A2A}
+.bd-now{background:#2A1A0D;color:#FF9F0A;border-color:#3A2A1A}
+.bd-app{background:#0D2A0D;color:#30D158;border-color:#1E3A2A}
+.bd-bare{background:#1A0D2A;color:#BF5AF2;border-color:#3A2A4E}
+.empty{text-align:center;padding:46px 20px;background:#0D0D0D;border:1px dashed #2A2A2A;border-radius:16px}
+.empty .ico{font-size:34px;opacity:.4;margin-bottom:10px}
+.empty h3{font-size:14px;font-weight:800;margin-bottom:5px}
+.empty p{font-size:12px;color:#8A8A8A;line-height:1.5}
+.btn-green{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#30D158,#28A745);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(52,199,89,.22)}
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.btn-half{flex:1;padding:12px;border-radius:12px;background:#1E1E1E;border:1px solid #2A2A2A;color:#C9C9C9;font-size:12.5px;font-weight:700;cursor:pointer}
+.btn-half.blue{border-color:#1A3A5E;color:#32ADE6}
+.btn-half.orange{border-color:#3A2A1A;color:#FF9F0A}
+.btn-half.purple{border-color:#3A2A4E;color:#BF5AF2}
+.add-btn{width:100%;padding:13px;border-radius:14px;background:#161616;border:1px dashed #32ADE666;color:#32ADE6;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:12px;font-family:'Outfit',system-ui,sans-serif}
+.btn-danger{padding:12px 16px;border-radius:12px;background:#161616;border:1px solid #3A1A1A;color:#FF453A;font-size:12px;font-weight:700;cursor:pointer}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#161616;border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:480px;border-top:1px solid #2A2A2A;max-height:88vh;overflow-y:auto;animation:popIn .24s cubic-bezier(.22,.8,.3,1) both}
+.modal-title{font-size:16px;font-weight:900;margin-bottom:16px}
+.modal-label{font-size:11px;color:#C9C9C9;margin-bottom:5px;display:block;font-weight:600}
+.modal-input{width:100%;padding:11px 14px;border-radius:12px;background:#101010;border:1px solid #2A2A2A;color:#fff;font-size:14px;font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;margin-bottom:11px}
+.modal-input:focus{outline:none;border-color:#BF5AF2}
+textarea.modal-input{resize:vertical;min-height:62px}
+.two{display:flex;gap:9px}
+.two>div{flex:1;min-width:0}
+.hint{font-size:10.5px;color:#6A6A6A;margin:-6px 0 11px}
+.pick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pick{padding:8px 12px;border-radius:10px;background:#101010;border:1px solid #2A2A2A;color:#8A8A8A;font-size:11.5px;font-weight:700;cursor:pointer}
+.pick.on{background:#1E1E1E;border-color:var(--c,#BF5AF2);color:var(--c,#BF5AF2)}
+.file-btn{width:100%;padding:13px;border-radius:12px;background:#101010;border:1px dashed #333;color:#8A8A8A;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px}
+.ai-strip{background:#1A0D2A;border:1px solid #3A2A4E;border-radius:14px;padding:12px;margin-bottom:14px}
+.ai-strip .t{font-size:11px;font-weight:800;color:#BF5AF2;margin-bottom:8px}
+.preview{width:100%;max-height:220px;object-fit:contain;border-radius:12px;background:#0D0D0D;margin-bottom:12px;display:none}
+.modal-btns{display:flex;gap:10px;margin-top:6px}
+.btn-save{flex:1;padding:14px;border-radius:12px;background:linear-gradient(135deg,#BF5AF2,#8E3FBE);border:none;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+.btn-cancel{padding:14px 18px;border-radius:12px;background:#222;border:1px solid #333;color:#C9C9C9;font-size:14px;font-weight:700;cursor:pointer}
+.d-img{width:100%;border-radius:14px;margin-bottom:14px;border:1px solid #2A2A2A}
+.d-title{font-size:18px;font-weight:900;line-height:1.25;margin-bottom:4px}
+.d-who{font-size:12px;font-weight:700;color:#BF5AF2;margin-bottom:12px}
+.d-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.d-cell{background:#101010;border:1px solid #2A2A2A;border-radius:12px;padding:10px 12px}
+.d-cell .k{font-size:9px;color:#8A8A8A;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.d-cell .v{font-size:13px;font-weight:800}
+.d-cell.tap{cursor:pointer}
+.d-cell.tap:active{border-color:#BF5AF2}
+.ed{cursor:text;border-bottom:1px dashed #3A3A3A}
+.ed:active{border-bottom-color:#BF5AF2}
+.pickpanel{background:#101010;border:1px solid #BF5AF2;border-radius:12px;padding:12px;margin-bottom:12px}
+.pickpanel .k{font-size:9px;color:#8A8A8A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:800}
+.pickpanel .row2{display:flex;gap:6px;flex-wrap:wrap}
+.grp-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.gm{font-size:10px;font-weight:800;padding:3px 9px;border-radius:99px;background:#1A1A1A;color:#A0A0A0;border:1px solid #2A2A2A}
+.gm.done{background:#0D2A0D;color:#30D158;border-color:#1E3A2A}
+.gm.left{background:#2A1A0D;color:#FF9F0A;border-color:#3A2A1A}
+.age{font-size:10px;font-weight:800;padding:3px 9px;border-radius:99px;border:1px solid}
+.plan-thumb{width:64px;height:64px;flex:0 0 auto;border-radius:10px;object-fit:cover;border:1px solid #2A2A2A}
+.grp-card{background:#161616;border:1px solid #333;border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;animation:cardIn .3s cubic-bezier(.22,.8,.3,1) both}
+.grp-card:active{transform:scale(.993)}
+.grp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.grp-name{font-size:15px;font-weight:800}
+.grp-n{font-size:11px;font-weight:800;color:#8A8A8A}
+.plan-row{display:flex;gap:11px;background:#161616;border:1px solid #333;border-radius:14px;padding:12px;margin-bottom:9px;align-items:flex-start}
+.plan-row.done{background:#0D1F0D;border-color:#1E3A2A}
+.tick{width:24px;height:24px;flex:0 0 auto;border-radius:50%;border:2px solid #3A3A3A;background:transparent;color:transparent;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:1px}
+.tick.on{background:#30D158;border-color:#30D158;color:#06240F}
+.plan-main{flex:1;min-width:0;cursor:pointer}
+.plan-text{font-size:14px;font-weight:600;line-height:1.45;white-space:pre-wrap}
+.plan-row.done .plan-text{text-decoration:line-through;color:#7A8A7A}
+.shots{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.shot{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid #2A2A2A}
+.shot-add{width:54px;height:54px;border-radius:9px;border:1px dashed #3A3A3A;background:#101010;color:#6A6A6A;font-size:19px;cursor:pointer}
+.big-shot{width:100%;max-height:340px;object-fit:contain;background:#0D0D0D;border-radius:12px;margin-bottom:10px;border:1px solid #2A2A2A}
+.tiphint{font-size:10.5px;color:#5A5A5A;margin:-4px 0 12px;text-align:center}
+.linkbox{display:block;background:#0D1A2A;border:1px solid #1A2A3E;padding:12px 14px;border-radius:12px;color:#32ADE6;font-size:12px;word-break:break-all;margin-bottom:12px;text-decoration:none;font-weight:600}
+.learn-box{background:#0D1A2A;border:1px solid #1A2A3E;border-radius:14px;padding:13px 15px;margin-bottom:12px}
+.learn-box .lk{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#32ADE6;font-weight:800;margin-bottom:8px;display:block}
+.learn-box ul{margin:0;padding-left:17px}
+.learn-box li{font-size:13px;line-height:1.55;margin-bottom:5px;color:#DDD}
+.note{background:#1A140D;border-left:3px solid #FF9F0A;padding:11px 14px;border-radius:0 10px 10px 0;font-size:13px;margin-bottom:12px;white-space:pre-wrap;line-height:1.5}
+.note.green{background:#0D1F0D;border-left-color:#30D158}
+.note .nk{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#8A8A8A;display:block;margin-bottom:4px;font-weight:800}
+.stat-big{text-align:center;padding:22px;background:#161616;border-radius:16px;margin-bottom:12px;border:1px solid #333}
+.stat-big .lbl{font-size:11px;color:#C9C9C9;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+.stat-big .amt{font-size:40px;font-weight:900;background:linear-gradient(135deg,#BF5AF2,#32ADE6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-big .sub{font-size:12px;color:#8A8A8A;margin-top:4px}
+.cls-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #262626}
+.cls-row:last-child{border-bottom:none}
+.cls-name{font-size:13px;font-weight:700}
+.cls-bar{flex:1;height:6px;background:#000;border-radius:99px;margin:0 12px;overflow:hidden}
+.cls-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#BF5AF2,#32ADE6)}
+.cls-n{font-size:12px;font-weight:800;color:#C9C9C9;min-width:22px;text-align:right}
+.warn{background:#2A1A0D;border:1px solid #3A2A1A;color:#FF9F0A;padding:12px 14px;border-radius:12px;font-size:12px;font-weight:600;margin-bottom:12px;line-height:1.45}
+.mode-sw{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 2px}
+.mode-btn{padding:12px;border-radius:14px;background:#161616;border:1px solid #333;color:#8A8A8A;font-size:14px;font-weight:800;cursor:pointer}
+.mode-btn.on.l{background:#1A0D2A;border-color:#BF5AF2;color:#BF5AF2}
+.mode-btn.on.i{background:#2A230D;border-color:#FFD60A;color:#FFD60A}
+.idea-cap{background:linear-gradient(135deg,#2A230D,#0D0D0D);border:1px solid #4A3F1A;border-radius:16px;padding:14px;margin-bottom:12px}
+.idea-cap h4{font-size:12px;font-weight:800;color:#FFD60A;margin-bottom:4px}
+.idea-cap p{font-size:11px;color:#8A8A8A;margin-bottom:11px;line-height:1.45}
+.cap-idea{background:linear-gradient(135deg,#FFD60A,#E0A800);color:#1A1405}
+.cap-idea2{background:#1E1E1E;border:1px solid #4A3F1A;color:#FFD60A}
+.b-yellow{color:#FFD60A}
+.bd-st-idea{background:#2A230D;color:#FFD60A;border-color:#4A3F1A}
+.bd-st-making{background:#2A1A0D;color:#FF9F0A;border-color:#3A2A1A}
+.bd-st-done{background:#0D2A0D;color:#30D158;border-color:#1E3A2A}
+.v-card.idea-done{background:#0D1F0D;border-color:#1E3A2A}
+.btn-save.yellow{background:linear-gradient(135deg,#FFD60A,#E0A800);color:#1A1405}
+.btn-half.yellow{border-color:#4A3F1A;color:#FFD60A}
+.btn-half.green{border-color:#1E3A2A;color:#30D158}
+.toast{position:fixed;bottom:104px;left:50%;transform:translateX(-50%);background:#1E1E1E;border:1px solid #333;padding:11px 20px;border-radius:99px;font-size:13px;font-weight:700;z-index:600;display:none;animation:popIn .26s cubic-bezier(.22,.8,.3,1) both;box-shadow:0 6px 24px rgba(0,0,0,.6);max-width:88%;text-align:center}
+.toast.show{display:block}
+.pick-next{background:linear-gradient(135deg,#1A0D2A,#0D0D0D);border:1px solid #3A2A4E;border-radius:16px;padding:16px;margin-bottom:12px}
+.pick-next h4{font-size:12px;font-weight:800;color:#BF5AF2;margin-bottom:4px}
+.pick-next p{font-size:11px;color:#8A8A8A;margin-bottom:11px}
+.b-blue{color:#32ADE6}
+/* v17 plans */
+.bar-wrap.slim{height:5px;background:#262626;margin-top:0}
+.grp-top{gap:10px}
+.grp-name{min-width:0;overflow-wrap:anywhere}
+.grp-right{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.grp-pct{font-size:14px;font-weight:900}
+.chev{font-size:22px;color:#555;line-height:1;font-weight:700}
+.grp-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #262626;margin-top:11px;padding-top:10px}
+.grp-stats .n{font-size:18px;font-weight:900;line-height:1.15}
+.grp-stats .l{font-size:11px;color:#8A8A8A;font-weight:600}
+.grp-empty{font-size:12px;color:#8A8A8A;margin-top:6px}
+.p-week{font-size:11.5px;color:#8A8A8A;font-weight:600;margin-top:9px}
+.p-sec{font-size:12.5px;font-weight:800;color:#ccc;margin:4px 2px 9px}
+.p-row{display:flex;align-items:center;gap:10px;background:#161616;border:1px solid #333;border-radius:14px;padding:10px 10px 10px 14px;margin-bottom:8px;position:relative;overflow:hidden;cursor:pointer;animation:cardIn .3s cubic-bezier(.22,.8,.3,1) both;transition:transform .16s}
+.p-row:active{transform:scale(.993)}
+.p-th{position:relative;flex:0 0 auto;width:40px;height:40px}
+.p-th img{width:40px;height:40px;border-radius:9px;object-fit:cover;border:1px solid #2A2A2A;display:block}
+.p-more{position:absolute;right:-5px;bottom:-5px;background:#32ADE6;color:#04121C;font-size:9.5px;font-weight:900;border-radius:99px;padding:1px 5px;border:2px solid #161616}
+.p-main{flex:1;min-width:0}
+.p-title{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-sub{font-size:11.5px;color:#8A8A8A;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-done{flex:0 0 auto;padding:10px 13px;border-radius:11px;border:none;background:#30D158;color:#04210D;font-size:12.5px;font-weight:900;cursor:pointer}
+.p-dsec{display:flex;justify-content:space-between;align-items:center;width:100%;background:#0D1A10;border:1px solid #1E3A2A;border-radius:12px;padding:11px 13px;color:#30D158;font-size:12.5px;font-weight:800;cursor:pointer;margin:6px 0 8px}
+.p-dlist{background:#0D0D0D;border:1px solid #1E1E1E;border-radius:14px;padding:2px 4px;margin-bottom:10px}
+.p-drow{display:flex;align-items:center;gap:10px;padding:10px 6px 10px 10px;border-bottom:1px solid #1A1A1A;cursor:pointer}
+.p-drow:last-child{border-bottom:none}
+.p-drow .p-title{font-size:13px;font-weight:700;color:#6A7A6A;text-decoration:line-through}
+.p-undo{flex:0 0 auto;padding:7px 12px;border-radius:9px;background:#161616;border:1px solid #333;color:#A0A0A0;font-size:11.5px;font-weight:800;cursor:pointer}
+.p-textbox{background:#0D1A2A;border:1px solid #1A2A3E;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:text}
+.p-textbox .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.p-textbox .lab{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#32ADE6;font-weight:800}
+.p-copy{padding:6px 12px;border-radius:9px;background:#32ADE622;border:1px solid #32ADE666;color:#32ADE6;font-size:12px;font-weight:800;cursor:pointer}
+.p-full{font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:#EEE}
+.p-tap{font-size:10.5px;color:#5A7A9A;margin-top:9px}
+.auto-t{color:#9A9A9A}
+/* v17 tap to edit */
+.ed-wrap{display:block;width:100%}
+.ed-wrap .modal-input{margin:0;font-weight:600;display:block}
+textarea.ed-box{resize:none;overflow:hidden;line-height:1.5}
+.ed-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+.ed-tip{font-size:10.5px;color:#6A6A6A;font-weight:600;line-height:1.3}
+.ed-save{padding:9px 16px;border-radius:10px;border:none;background:#30D158;color:#04210D;font-size:12.5px;font-weight:900;cursor:pointer;flex:0 0 auto}
+/* v17 undo and discard check */
+.t-undo{margin-left:12px;padding:5px 12px;border-radius:99px;background:transparent;border:1px solid #FFD60A66;color:#FFD60A;font-size:12px;font-weight:800;cursor:pointer}
+.ask-ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.72);z-index:700;display:none;align-items:center;justify-content:center;padding:24px}
+.ask-ov.open{display:flex}
+.ask-box{background:#161616;border:1px solid #333;border-radius:18px;padding:20px;width:100%;max-width:340px;animation:popIn .2s ease both}
+.ask-box h3{font-size:16px;font-weight:900;margin-bottom:6px}
+.ask-box p{font-size:12.5px;color:#8A8A8A;line-height:1.5;margin-bottom:14px}
+.v-card.learned .thumb,.v-card.idea-done .thumb{filter:grayscale(1);opacity:.4}
+.v-card.learned .thumb-ph,.v-card.idea-done .thumb-ph{opacity:.22}
+.p-th.dim{filter:grayscale(1);opacity:.4}
+.p-drow .p-th,.p-drow .p-th img{width:34px;height:34px}
+/* v18 group cards */
+.grp-card.g2{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;margin-bottom:10px}
+.grp-card.g2.full,.g2head.full{background:#0F1A12;border-color:#1E3A2A}
+.grp-card.g2.g-empty{border-style:dashed}
+.g2-top{display:flex;align-items:center;gap:14px}
+.g2-main{flex:1;min-width:0}
+.g2-name{font-size:21px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.g2head .g2-name{font-size:23px}
+.g2-sub{font-size:13.5px;color:#8A8A8A;font-weight:600;margin-top:6px;line-height:1.35}
+.g2-sub b{font-weight:800;color:#fff}
+.ring{flex:0 0 auto;display:block}
+.grp-card.g2 .chev{font-size:26px}
+/* v18 plan paste */
+.plan-cap{background:linear-gradient(135deg,#0D1A2A,#0D0D0D);border:1px solid #1A3A5E;border-radius:16px;padding:14px;margin-bottom:12px}
+.plan-cap h4{font-size:12px;font-weight:800;color:#32ADE6;margin-bottom:4px}
+.plan-cap p{font-size:11px;color:#8A8A8A;margin-bottom:11px;line-height:1.45}
+.cap-plan{background:linear-gradient(135deg,#32ADE6,#1B7FB8);color:#fff}
+.cap-plan2{background:#1E1E1E;border:1px solid #1A3A5E;color:#32ADE6}
+.paste-hint{font-size:12px;color:#8A8A8A;line-height:1.5;margin:-8px 0 12px}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="sub">Philip's</div>
+  <h1>Vault</h1><span class="ver">v20</span>
+</div>
+
+<div class="mode-sw">
+  <button class="mode-btn l on" id="mode-learn" onclick="setMode('learn')">📚 Learn</button>
+  <button class="mode-btn i" id="mode-ideas" onclick="setMode('ideas')">💡 Ideas</button>
+</div>
+
+<div class="page active" id="page-home">
+<div id="ideasHome" style="display:none">
+  <div class="summary-grid">
+    <div class="summary-box sw-box" id="ibox-idea" onclick="setList('idea')"><div class="box-label">Ideas</div><div class="box-val b-yellow" id="iIdea">0</div></div>
+    <div class="summary-box sw-box" id="ibox-making" onclick="setList('making')"><div class="box-label">Making</div><div class="box-val b-orange" id="iMaking">0</div></div>
+    <div class="summary-box sw-box" id="ibox-done" onclick="setList('done')"><div class="box-label">Done</div><div class="box-val b-green" id="iDone">0</div></div>
+  </div>
+  <div class="idea-cap">
+    <h4>Add an idea</h4>
+    <p>Copy the AI reply, tap Paste, check it, then add it.</p>
+    <div class="cap-row">
+      <button class="cap-btn cap-idea" onclick="pasteIdea()">📋 Paste</button>
+      <button class="cap-btn cap-idea2" onclick="openIdeaForm()">Fill it in myself</button>
+    </div>
+  </div>
+  <input class="search-input" id="searchI" placeholder="Search your ideas" oninput="renderIdeas()">
+  <div class="chips" id="chipsIC"></div>
+  <div id="listIdeas"></div>
+</div>
+
+<div id="learnHome">
+  <div class="summary-grid">
+    <div class="summary-box sw-box" id="lbox-vault" onclick="setList('vault')"><div class="box-label">To Watch</div><div class="box-val b-purple" id="sVault">0</div></div>
+    <div class="summary-box sw-box" id="lbox-watching" onclick="setList('watching')"><div class="box-label">Watching</div><div class="box-val b-orange" id="sWatch">0</div></div>
+    <div class="summary-box sw-box" id="lbox-learned" onclick="setList('learned')"><div class="box-label">Learned</div><div class="box-val b-green" id="sLearn">0</div></div>
+  </div>
+
+  <div class="capture">
+    <h4>Add a video</h4>
+    <p>Copy the AI reply, tap Paste, check it, then add it.</p>
+    <div class="cap-row">
+      <button class="cap-btn cap-ai" onclick="pasteNew()">📋 Paste</button>
+      <button class="cap-btn cap-link" onclick="openForm()">Fill it in myself</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span class="label-sm">Vault cleared</span><span class="val-gold" id="clearTxt">0%</span></div>
+    <div class="bar-wrap"><div class="bar-fill" id="clearBar" style="width:0%;background:linear-gradient(90deg,#BF5AF2,#30D158)"></div></div>
+  </div>
+  <div id="backlogWarn"></div>
+
+  <div class="pick-next" id="freeMoment">
+    <h4>Got a free moment?</h4>
+    <p>Tap your time to see every video that fits.</p>
+    <div style="display:flex;gap:7px">
+      <button class="btn-half time-btn" id="tb-short" onclick="openTime('short')">5 min</button>
+      <button class="btn-half time-btn" id="tb-mid" onclick="openTime('mid')">20 min</button>
+      <button class="btn-half time-btn" id="tb-long" onclick="openTime('long')">1 hour</button>
+    </div>
+  </div>
+
+  <input class="search-input" id="search" placeholder="Search title, creator or keyword" oninput="render()">
+  <div class="sort-row">
+    <button class="sort-btn on" id="srt-new" onclick="setSort('new')">Newest</button>
+    <button class="sort-btn" id="srt-old" onclick="setSort('old')">Oldest</button>
+    <button class="sort-btn" id="srt-pri" onclick="setSort('pri')">Importance</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="listVault"></div>
+</div>
+</div>
+
+<div class="page" id="page-stats">
+  <div class="stat-big">
+    <div class="lbl">Turned into lessons</div>
+    <div class="amt" id="stPct">0%</div>
+    <div class="sub" id="stSub">Nothing saved yet</div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-box"><div class="box-label">Applied</div><div class="box-val b-green" id="stApplied">0</div></div>
+    <div class="summary-box"><div class="box-label">Quick wins</div><div class="box-val b-orange" id="stQuick">0</div></div>
+    <div class="summary-box"><div class="box-label">Saved total</div><div class="box-val b-purple" id="stTotal">0</div></div>
+  </div>
+  <div class="card"><div class="section-title" style="margin-top:0">By class</div><div id="stClasses"></div></div>
+  <div class="summary-grid">
+    <div class="summary-box"><div class="box-label">Ideas</div><div class="box-val b-yellow" id="stIdeas2">0</div></div>
+    <div class="summary-box"><div class="box-label">Plans done</div><div class="box-val b-green" id="stPlans2">0</div></div>
+    <div class="summary-box"><div class="box-label">Plans left</div><div class="box-val b-orange" id="stPlansLeft">0</div></div>
+  </div>
+  <div class="card"><div class="section-title" style="margin-top:0">By creator</div><div id="stCreators"></div></div>
+</div>
+
+<div class="page" id="page-plans">
+  <div id="plansHome">
+    <div class="summary-grid">
+      <div class="summary-box sw-box" id="pbox-groups" onclick="setPlanView('groups')"><div class="box-label">Groups</div><div class="box-val b-blue" id="pGroups">0</div></div>
+      <div class="summary-box sw-box" id="pbox-left" onclick="setPlanView('left')"><div class="box-label">Left</div><div class="box-val b-orange" id="pLeft">0</div></div>
+      <div class="summary-box sw-box" id="pbox-done" onclick="setPlanView('done')"><div class="box-label">Done</div><div class="box-val b-green" id="pDone">0</div></div>
+    </div>
+    <div class="plan-cap">
+      <h4>Add a plan</h4>
+      <p>Copy the AI reply, tap Paste, check it, then add it.</p>
+      <div class="cap-row">
+        <button class="cap-btn cap-plan" onclick="pastePlan()">📋 Paste</button>
+        <button class="cap-btn cap-plan2" onclick="openPlanForm(null)">Fill it in myself</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row"><span class="label-sm">Plans cleared</span><span class="val-gold" id="pClearTxt">0% · 0 of 0</span></div>
+      <div class="bar-wrap slim" style="margin-top:10px"><div class="bar-fill" id="pClearBar" style="width:0%"></div></div>
+      <div class="p-week" id="pWeek"></div>
+    </div>
+    <div id="pvGroups">
+      <button class="add-btn" onclick="newGroup()">+ New group</button>
+      <div id="listGroups"></div>
+    </div>
+    <div id="pvList" style="display:none">
+      <input class="search-input" id="searchP" placeholder="Search plans left to do" oninput="renderPlans()">
+      <div class="sort-row" id="pSortRow"></div>
+      <div class="chips" id="pChips"></div>
+      <div id="listAllPlans"></div>
+    </div>
+  </div>
+  <div id="planGroupView" style="display:none">
+    <button class="btn-half" style="width:100%;margin-bottom:12px" onclick="closeGroupView()">← All groups</button>
+    <div id="groupHead"></div>
+    <div class="plan-cap">
+      <h4>Add a plan</h4>
+      <p>Copy the AI reply, tap Paste, check it, then add it.</p>
+      <div class="cap-row">
+        <button class="cap-btn cap-plan" onclick="pastePlan()">📋 Paste</button>
+        <button class="cap-btn cap-plan2" onclick="openPlanForm(null)">Fill it in myself</button>
+      </div>
+    </div>
+    <div id="listPlans"></div>
+  </div>
+</div>
+
+<div class="page" id="page-settings">
+  <div class="card">
+    <div class="section-title" style="margin-top:0">Backup and restore</div>
+    <p style="font-size:12px;color:#8A8A8A;line-height:1.5;margin-bottom:12px">Everything lives inside Chrome on this phone. The backup file is the only copy that survives a wipe. Export every Sunday and put it in Google Drive.</p>
+    <button class="btn-green" onclick="exportData()">Export backup file</button>
+    <div class="btn-row">
+      <button class="btn-half blue" onclick="document.getElementById('impFile').click()">Import backup</button>
+      <button class="btn-danger" style="flex:1" onclick="wipeAll()">Erase everything</button>
+    </div>
+    <input type="file" id="impFile" accept="application/json" style="display:none" onchange="importData(event)">
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0">Storage used</div>
+    <div class="row"><span class="label-sm" id="stoTxt">calculating</span><span class="val-gold" id="stoPct">0%</span></div>
+    <div class="bar-wrap"><div class="bar-fill" id="stoBar" style="width:0%;background:linear-gradient(90deg,#32ADE6,#30D158)"></div></div>
+    <p style="font-size:11px;color:#6A6A6A;margin-top:9px;line-height:1.45" id="stoNote"></p>
+    <button class="btn-half blue" style="width:100%;margin-top:11px" onclick="askPersist()">Request protected storage</button>
+    <div id="persistState" style="font-size:11px;color:#6A6A6A;margin-top:9px"></div>
+  </div>
+</div>
+
+<div class="bottom-nav" id="nav"></div>
+
+<div class="modal-overlay" id="formModal">
+  <div class="modal-box">
+    <div class="modal-title" id="formTitle">Save a video</div>
+
+    <div class="ai-strip">
+      <div class="t">Fill this in from a copied AI reply</div>
+      <div style="display:flex;gap:7px">
+        <button class="btn-half purple" style="margin:0" onclick="copyPrompt()">Copy prompt</button>
+        <button class="btn-half purple" style="margin:0" onclick="pasteIntoForm()">📋 Paste</button>
+      </div>
+      <div class="btn-row" id="linkCopyRow" style="display:none;margin-top:7px">
+        <button class="btn-half blue" style="margin:0" onclick="copyLink(this.parentNode.getAttribute('data-id'))">Copy link</button>
+      </div>
+    </div>
+
+    <label class="modal-label">Link</label>
+    <input class="modal-input" id="fLink" placeholder="Paste the video link" inputmode="url">
+    <label class="modal-label">Title</label>
+    <input class="modal-input" id="fName" placeholder="What the video is about">
+    <label class="modal-label">Posted by</label>
+    <input class="modal-input" id="fWho" placeholder="Creator name or handle">
+    <label class="modal-label">Platform</label>
+    <div class="pick-row" id="pickSource"></div>
+    <label class="modal-label">Class</label>
+    <div class="pick-row" id="pickClass"></div>
+    <label class="modal-label">Keywords</label>
+    <input class="modal-input" id="fTags" placeholder="body language, focus, editing">
+    <div class="hint">Separate with commas. Search reads these.</div>
+    <div class="two">
+      <div>
+        <label class="modal-label">Length</label>
+        <select class="modal-input" id="fLen">
+          <option>Under 5 min</option><option>5 to 15 min</option>
+          <option>15 to 45 min</option><option>Over 45 min</option>
+        </select>
+      </div>
+      <div>
+        <label class="modal-label">Priority</label>
+        <select class="modal-input" id="fPri"><option>Important</option><option>Very Important</option><option>Normal</option></select>
+      </div>
+    </div>
+    <label class="modal-label">What I will learn from this video</label>
+    <textarea class="modal-input" id="fLearn" style="min-height:110px" placeholder="One point per line"></textarea>
+    <label class="modal-label">Why you saved it</label>
+    <textarea class="modal-input" id="fWhy" placeholder="One line so future you remembers"></textarea>
+    <label class="modal-label">Screenshot</label>
+    <button class="file-btn" onclick="document.getElementById('fImg').click()">📷 Choose screenshot</button>
+    <input type="file" id="fImg" accept="image/*" style="display:none">
+    <img class="preview" id="preview" alt="">
+    <div class="modal-btns">
+      <button class="btn-save" onclick="saveItem()"><span id="saveBtnTxt">Add to vault</span></button>
+      <button class="btn-cancel" onclick="closeModal('formModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ideaModal">
+  <div class="modal-box">
+    <div class="modal-title" id="iFormTitle">Save an idea</div>
+    <div class="ai-strip" style="background:#2A230D;border-color:#4A3F1A">
+      <div class="t" style="color:#FFD60A">Fill this in from a copied AI reply</div>
+      <button class="btn-half yellow" style="width:100%;margin:0" onclick="pasteIntoIdeaForm()">📋 Paste</button>
+    </div>
+    <label class="modal-label">The idea</label>
+    <input class="modal-input" id="iName" placeholder="Your idea in one line">
+    <label class="modal-label">Source link</label>
+    <input class="modal-input" id="iLink" placeholder="Link to the video that sparked it" inputmode="url">
+    <label class="modal-label">Posted by</label>
+    <input class="modal-input" id="iWho" placeholder="Creator name or handle">
+    <label class="modal-label">Platform</label>
+    <div class="pick-row" id="iPickSource"></div>
+    <label class="modal-label">Class</label>
+    <div class="pick-row" id="iPickClass"></div>
+    <label class="modal-label">What makes it a good idea</label>
+    <textarea class="modal-input" id="iAngle" style="min-height:110px" placeholder="One point per line"></textarea>
+    <label class="modal-label">Screenshot</label>
+    <button class="file-btn" onclick="document.getElementById('iImg').click()">📷 Choose screenshot</button>
+    <input type="file" id="iImg" accept="image/*" style="display:none">
+    <img class="preview" id="iPreview" alt="">
+    <div class="modal-btns">
+      <button class="btn-save yellow" onclick="saveIdea()"><span id="iSaveTxt">Add to ideas</span></button>
+      <button class="btn-cancel" onclick="closeModal('ideaModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="pImg" accept="image/*" style="display:none">
+<div class="modal-overlay" id="planModal">
+  <div class="modal-box">
+    <div class="modal-title" id="pfTitle">New plan</div>
+    <div class="ai-strip" style="background:#0D1A2A;border-color:#1A3A5E">
+      <div class="t" style="color:#32ADE6">Fill this in from a copied AI reply</div>
+      <div style="display:flex;gap:7px">
+        <button class="btn-half blue" style="margin:0" onclick="copyPlanPrompt()">Copy prompt</button>
+        <button class="btn-half blue" style="margin:0" onclick="pastePlanIntoForm()">📋 Paste</button>
+      </div>
+    </div>
+    <label class="modal-label">Group</label>
+    <div class="pick-row" id="pfGroups"></div>
+    <div id="pfNewWrap" style="display:none"><input class="modal-input" id="pfNewGroup" maxlength="40" placeholder="Name the new group"></div>
+    <div class="hint" id="pfGroupNote" style="margin-top:-4px;color:#32ADE6"></div>
+    <label class="modal-label">Short title (optional)</label>
+    <input class="modal-input" id="pfName" maxlength="80" placeholder="A few words, like Fix the edit bug">
+    <div class="hint">Leave it empty and the first words of your plan are used.</div>
+    <label class="modal-label">Your plan</label>
+    <textarea class="modal-input" id="pfText" style="min-height:120px" placeholder="Write the full plan here"></textarea>
+    <label class="modal-label">Importance</label>
+    <div class="pick-row" id="pfPicks"></div>
+    <label class="modal-label">Screenshots</label>
+    <button class="file-btn" onclick="pickPlanFormShot()">📷 Add a screenshot</button>
+    <div class="shots" id="pfShots"></div>
+    <div class="hint" id="pfShotHint" style="margin:8px 0 0;display:none">Tap a screenshot to remove it.</div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button class="btn-save" style="background:linear-gradient(135deg,#32ADE6,#1B7FB8)" onclick="savePlanForm()"><span id="pfSave">Add plan</span></button>
+      <button class="btn-cancel" onclick="closeModal('planModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailModal"><div class="modal-box" id="detailBody"></div></div>
+<div class="modal-overlay" id="timeModal"><div class="modal-box" id="timeBody"></div></div>
+<div class="modal-overlay" id="pasteModal">
+  <div class="modal-box">
+    <div class="modal-title">Paste the reply</div>
+    <p class="paste-hint">Chrome did not let the app read your clipboard. Long-press inside the box below, tap Paste, then tap Use this.</p>
+    <textarea class="modal-input" id="pasteBox" style="min-height:180px" placeholder="Long-press here and tap Paste"></textarea>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="finishPaste(true)">Use this</button>
+      <button class="btn-cancel" onclick="finishPaste(false)">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="ask-ov" id="askOv" onclick="if(event.target===this)finishAsk(false)">
+  <div class="ask-box">
+    <h3>Discard this?</h3>
+    <p>What you typed here has not been saved yet.</p>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn-half" onclick="finishAsk(false)">Keep editing</button>
+      <button class="btn-danger" style="flex:1" onclick="finishAsk(true)">Discard</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='plv_v5', OLD4='plv_v4', OLD3='plv_v3', OLD2='plv_v2';
+const SOURCES=['TikTok','YouTube','Instagram','X','Facebook','Other'];
+const CLASSES=['Tech','Business','Content','Mindset','Money','Health','Skills','Other'];
+const CLS_COLOR={Tech:'#32ADE6',Business:'#FFD60A',Content:'#BF5AF2',Mindset:'#FF9F0A',Money:'#30D158',Health:'#FF453A',Skills:'#5E9EFF',Other:'#8A8A8A'};
+const LENS=['Under 5 min','5 to 15 min','15 to 45 min','Over 45 min'];
+const PRIS=['Very Important','Important','Normal'];
+const PRI_OLD={'now':'Very Important','soon':'Important','someday':'Normal'};
+const PRI_COLOR={'Very Important':'#FF453A','Important':'#FF9F0A','Normal':'#8A8A8A'};
+const PO={'Very Important':0,'Important':1,'Normal':2};
+
+const PROMPT=`VAULT
+
+Break down the video in the screenshot and link below for my Learn Vault.
+
+Reply with ONLY this block. No intro, no extra text.
+
+TITLE: the real title of the video
+CREATOR: who posted it
+PLATFORM: TikTok or YouTube or Instagram or X or Facebook or Other
+CLASS: Tech or Business or Content or Mindset or Money or Health or Skills or Other
+KEYWORDS: 5 to 7 comma separated
+LENGTH: Under 5 min or 5 to 15 min or 15 to 45 min or Over 45 min
+PRIORITY: Now or Soon or Someday
+LEARN: 4 to 6 lines, each starting with a dash, each one an actual thing taught in THIS video, specific to its content, not general
+WHY: one line on why it is worth my time
+
+Link: `;
+
+let DB={items:[]}, THUMBS={}, IDB=null;
+let page='vault', filterClass='All', filterW='All', filterL='All', sortBy='new', editId=null;
+let imgFull='', imgThumb='', imgChanged=false;
+let pickedSource='TikTok', pickedClass='Tech';
+
+/* ---- IndexedDB ---- */
+function idbOpen(){return new Promise(res=>{const r=indexedDB.open('LearnVaultDB',1);
+  r.onupgradeneeded=e=>{const d=e.target.result;
+    if(!d.objectStoreNames.contains('images'))d.createObjectStore('images');
+    if(!d.objectStoreNames.contains('thumbs'))d.createObjectStore('thumbs');};
+  r.onsuccess=e=>res(e.target.result);r.onerror=()=>res(null);});}
+function idbPut(s,k,v){return new Promise(res=>{if(!IDB)return res(false);
+  const t=IDB.transaction(s,'readwrite');t.objectStore(s).put(v,k);
+  t.oncomplete=()=>res(true);t.onerror=()=>res(false);});}
+function idbGet(s,k){return new Promise(res=>{if(!IDB)return res(null);
+  const r=IDB.transaction(s,'readonly').objectStore(s).get(k);
+  r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null);});}
+function idbDel(s,k){return new Promise(res=>{if(!IDB)return res(false);
+  const t=IDB.transaction(s,'readwrite');t.objectStore(s).delete(k);
+  t.oncomplete=()=>res(true);t.onerror=()=>res(false);});}
+function idbAll(s){return new Promise(res=>{if(!IDB)return res({});const out={};
+  const t=IDB.transaction(s,'readonly').objectStore(s).openCursor();
+  t.onsuccess=e=>{const c=e.target.result;if(c){out[c.key]=c.value;c.continue();}else res(out);};
+  t.onerror=()=>res({});});}
+function idbClear(s){return new Promise(res=>{if(!IDB)return res(false);
+  const t=IDB.transaction(s,'readwrite');t.objectStore(s).clear();
+  t.oncomplete=()=>res(true);t.onerror=()=>res(false);});}
+
+/* ---- basics ---- */
+function loadText(){try{const r=localStorage.getItem(KEY);if(r)DB=JSON.parse(r);}catch(e){}ensureIdeas();}
+function ensureIdeas(){if(!Array.isArray(DB.items))DB.items=[];if(!Array.isArray(DB.ideas))DB.ideas=[];
+  if(!Array.isArray(DB.groups))DB.groups=[];if(!Array.isArray(DB.plans))DB.plans=[];if(DB.mode!=='ideas')DB.mode='learn';
+  let fixed=false;
+  DB.items.forEach(it=>{const p2=normPri(it.pri);if(p2!==it.pri){it.pri=p2;fixed=true;}});
+  if(fixed)try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB));return true;}catch(e){toast('Storage full. Export a backup, then delete old learned items.');return false;}}
+function pctOf(d,n){return !n?0:d>=n?100:Math.max(d>0?1:0,Math.min(99,Math.round(d/n*100)));}
+function uid(){return 'v'+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function today(){return new Date().toISOString().slice(0,10);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2600);}
+function toastUndo(m,fn){
+  const t=document.getElementById('toast');t.textContent=m;
+  const b=document.createElement('button');b.className='t-undo';b.textContent='Undo';
+  b.onclick=()=>{t.classList.remove('show');clearTimeout(t._x);fn();};
+  t.appendChild(b);t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+/* ---- phone back button, popups and plan groups ----
+   Every popup (and an open plan group) adds one step to Chrome's back history.
+   Back closes the top one. Closing with a button removes its step too. */
+let LAYERS=[], skipPop=0, askOpen=false, askRes=null, curDetail='', formSnap={};
+function histPush(){try{history.pushState({pv:1},'');return true;}catch(e){return false;}}
+function histBack(){skipPop++;try{history.back();}catch(e){skipPop--;}}
+function isOpen(id){const el=document.getElementById(id);return !!el&&el.classList.contains('open');}
+/* A screen that closes leaves a "spare" back step for a short moment. If another screen
+   opens right away it reuses that step, so Chrome never goes back and forward at the same time. */
+let spareT=null;
+function addLayer(id){
+  if(LAYERS.some(l=>l.id===id))return;
+  const si=LAYERS.map(l=>l.id).lastIndexOf('__spare__');
+  if(si>=0){LAYERS.splice(si,1);LAYERS.push({id:id,pushed:true});}
+  else LAYERS.push({id:id,pushed:histPush()});
+}
+function cleanSpares(){
+  clearTimeout(spareT);
+  spareT=setTimeout(()=>{
+    spareT=null;
+    const n=LAYERS.filter(l=>l.id==='__spare__').length;if(!n)return;
+    LAYERS=LAYERS.filter(l=>l.id!=='__spare__');
+    skipPop++;try{history.go(-n);}catch(e){skipPop--;}
+  },400);
+}
+function openModal(id){
+  const el=document.getElementById(id);
+  addLayer(id);
+  if(!el.classList.contains('open')){
+    el.classList.add('open');
+    const b=el.querySelector('.modal-box');if(b)b.scrollTop=0;
+  }
+}
+function hideModal(id){
+  if(id==='pasteModal'&&pasteRes){const r=pasteRes;pasteRes=null;r(null);}
+  if(id==='detailModal'){if(curEdit)curEdit.finish('silent');curDetail='';planPick=null;}
+  document.getElementById(id).classList.remove('open');
+}
+function dropLayer(id){
+  const n=LAYERS.findIndex(l=>l.id===id);if(n<0)return;
+  if(!LAYERS[n].pushed){LAYERS.splice(n,1);return;}
+  LAYERS[n].id='__spare__';cleanSpares();
+}
+function closeModal(id){hideModal(id);dropLayer(id);}
+function swapOutModal(id){closeModal(id);}
+function enterGroupLayer(){addLayer('group');}
+function formVals(id){
+  if(id==='formModal')return ['fLink','fName','fWho','fTags','fLen','fPri','fLearn','fWhy'].map(x=>document.getElementById(x).value).join('\u0001')+'|'+pickedSource+'|'+pickedClass;
+  return ['iName','iLink','iWho','iAngle'].map(x=>document.getElementById(x).value).join('\u0001')+'|'+iSource+'|'+iClass;
+}
+const FORM_DIRTY={
+  formModal:()=>imgChanged||formVals('formModal')!==formSnap.formModal,
+  ideaModal:()=>iImgChanged||formVals('ideaModal')!==formSnap.ideaModal,
+  planModal:()=>!!(document.getElementById('pfName').value.trim()||document.getElementById('pfText').value.trim()||pfImgs.length)
+};
+function isDirty(id){try{return !!(FORM_DIRTY[id]&&isOpen(id)&&FORM_DIRTY[id]());}catch(e){return false;}}
+function askDiscard(){return new Promise(res=>{askRes=res;askOpen=true;document.getElementById('askOv').classList.add('open');});}
+function finishAsk(v){
+  document.getElementById('askOv').classList.remove('open');askOpen=false;
+  const r=askRes;askRes=null;if(r)r(v);
+}
+function closeFormSafely(id){
+  if(isDirty(id))askDiscard().then(yes=>{if(yes)closeModal(id);});
+  else closeModal(id);
+}
+window.addEventListener('popstate',()=>{
+  if(skipPop>0){skipPop--;return;}
+  if(askOpen){
+    const top=LAYERS[LAYERS.length-1];const ok=histPush();if(top)top.pushed=ok;
+    finishAsk(false);return;
+  }
+  const top=LAYERS.pop();if(!top)return;
+  if(top.id==='__spare__'){
+    /* the press landed on a step a closed screen just left; pass it on to the next screen */
+    if(LAYERS.length){try{history.back();}catch(e){}}
+    return;
+  }
+  if(top.id==='group'){planGroup=null;renderPlans();window.scrollTo(0,0);return;}
+  if(isDirty(top.id)){
+    top.pushed=histPush();LAYERS.push(top);
+    askDiscard().then(yes=>{if(yes)closeModal(top.id);});
+    return;
+  }
+  hideModal(top.id);
+});
+const TABS=[['home','🏠','Home','#BF5AF2'],['plans','📋','Plans','#32ADE6'],['stats','📊','Stats','#30D158'],['settings','⚙️','Settings','#FFD60A']];
+function renderNav(){
+  document.getElementById('nav').innerHTML=TABS.map(([k,ic,lab,col])=>
+    `<button class="nav-btn ${k===page?'active':''}" style="--tab:${col}" onclick="go('${k}')"><span class="nav-icon">${ic}</span>${lab}</button>`).join('');
+}
+function go(p){
+  if(planGroup||LAYERS.some(l=>l.id==='group')){planGroup=null;dropLayer('group');}
+  if(p==='plans'){planView='groups';pGroupF='All';pSort='pri';}
+  page=p;
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelector('.mode-sw').style.display=(p==='home')?'grid':'none';
+  renderNav();window.scrollTo(0,0);
+  if(p==='plans')renderPlans();
+  else if(p==='settings'){renderStorage();render();}
+  else render();
+}
+function setList(k){
+  if(DB.mode==='ideas')iFilterS=k; else listTab=k;
+  DB.mode==='ideas'?renderIdeas():render();
+  window.scrollTo(0,0);
+}
+function setSort(s){sortBy=s;['new','old','pri'].forEach(x=>document.getElementById('srt-'+x).classList.toggle('on',x===s));render();}
+
+/* ---- clipboard ---- */
+/* Reads the copied AI reply. If Chrome blocks the clipboard, an in-app paste screen opens.
+   Returns the text, or null if cancelled. */
+let pasteRes=null;
+async function readClip(){
+  try{const t=await navigator.clipboard.readText();if(t&&t.trim())return t;}catch(e){}
+  return await new Promise(res=>{
+    pasteRes=res;
+    const ta=document.getElementById('pasteBox');ta.value='';
+    openModal('pasteModal');
+    setTimeout(()=>ta.focus(),200);
+  });
+}
+function finishPaste(use){
+  const v=use?document.getElementById('pasteBox').value:null;
+  const r=pasteRes;pasteRes=null;
+  closeModal('pasteModal');
+  if(r)r(use&&!v.trim()?'':v);
+}
+function copyText(t,msg){
+  navigator.clipboard.writeText(t).then(()=>toast(msg)).catch(()=>{
+    const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);
+    a.select();document.execCommand('copy');a.remove();toast(msg);});
+}
+function copyPrompt(){copyText(PROMPT,'Prompt copied. Send it with the screenshot and link.');}
+
+/* ---- AI block parser: line scanner ---- */
+const KEYS=['TITLE','IDEA','ANGLE','CREATOR','PLATFORM','CLASS','KEYWORDS','LENGTH','PRIORITY','LEARN','WHY','LESSON','LINK'];
+function normPri(v){const t=(v||'').trim().toLowerCase();if(PRI_OLD[t])return PRI_OLD[t];
+  const hit=PRIS.find(x=>x.toLowerCase()===t)||PRIS.find(x=>t&&x.toLowerCase().includes(t));return hit||'Important';}
+function parseBlock(txt){
+  if(!txt||!/TITLE\s*:/i.test(txt))return null;
+  const out={};let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*([A-Za-z ]{3,12})\s*:\s*(.*)$/);
+    if(m&&KEYS.indexOf(m[1].trim().toUpperCase())>-1){
+      cur=m[1].trim().toUpperCase();
+      out[cur]=m[2].trim();
+    }else if(cur){
+      out[cur]=(out[cur]?out[cur]+'\n':'')+line.trim();
+    }
+  });
+  KEYS.forEach(k=>{out[k]=(out[k]||'').trim();});
+  const norm=(val,list,def)=>{
+    const v=(val||'').toLowerCase();
+    return list.find(x=>x.toLowerCase()===v)||list.find(x=>v.includes(x.toLowerCase()))||def;
+  };
+  const linkM=txt.match(/https?:\/\/\S+/);
+  let link=out.LINK||'';
+  const lm=link.match(/https?:\/\/\S+/);
+  link=lm?lm[0]:(linkM?linkM[0]:'');
+  let lesson=out.LESSON||'';
+  if(/^https?:\/\//i.test(lesson)||/^link\s*:/i.test(lesson))lesson='';
+  return {
+    title:out.TITLE,who:out.CREATOR,
+    source:norm(out.PLATFORM,SOURCES,'Other'),
+    cls:norm(out.CLASS,CLASSES,'Other'),
+    tags:out.KEYWORDS.split(',').map(x=>x.trim()).filter(Boolean),
+    len:norm(out.LENGTH,LENS,'5 to 15 min'),
+    pri:normPri(out.PRIORITY),
+    learn:out.LEARN,why:out.WHY,lesson:lesson,link:link.trim()
+  };
+}
+
+/* paste from the vault screen: opens the review form, nothing saved yet */
+async function pasteNew(){
+  const txt=await readClip();if(txt===null)return;
+  if(isPlanBlock(txt)){const dp=parsePlan(txt);if(dp){go('plans');openPlanForm(dp);toast('That was a plan, so it went to Plans');}return;}
+  if(isIdeaBlock(txt)){setMode('ideas');const di=parseIdea(txt);if(di){await openIdeaForm(null,di);toast('That was an idea, so it went to Ideas');}return;}
+  const d=parseBlock(txt);
+  if(!d){toast('Nothing readable on the clipboard. Copy the whole reply.');return;}
+  if(d.link&&isDupe(d.link))toast('Heads up, that link is already in your vault');
+  await openForm(null,d);
+}
+/* paste inside the form */
+async function pasteIntoForm(){
+  const txt=await readClip();if(txt===null)return;
+  const d=parseBlock(txt);
+  if(!d){toast('Nothing readable on the clipboard. Copy the whole reply.');return;}
+  fillForm(d);
+  toast('Filled in. Check it, then add it.');
+}
+function fillForm(d){
+  if(d.link)document.getElementById('fLink').value=d.link;
+  if(d.title)document.getElementById('fName').value=d.title;
+  if(d.who)document.getElementById('fWho').value=d.who;
+  if(d.tags.length)document.getElementById('fTags').value=d.tags.join(', ');
+  document.getElementById('fLen').value=d.len;
+  document.getElementById('fPri').value=d.pri;
+  if(d.learn)document.getElementById('fLearn').value=d.learn;
+  if(d.why)document.getElementById('fWhy').value=d.why;
+  pickedSource=d.source;pickedClass=d.cls;buildPickers();
+}
+
+function detectPlatform(url){
+  const u=(url||'').toLowerCase();
+  if(u.includes('tiktok'))return 'TikTok';
+  if(u.includes('youtu'))return 'YouTube';
+  if(u.includes('instagram'))return 'Instagram';
+  if(u.includes('x.com')||u.includes('twitter'))return 'X';
+  if(u.includes('facebook')||u.includes('fb.watch'))return 'Facebook';
+  return 'Other';
+}
+function isDupe(link){
+  if(!link)return false;
+  const clean=l=>l.replace(/[?#].*$/,'').replace(/\/$/,'').toLowerCase();
+  return DB.items.some(i=>i.link&&clean(i.link)===clean(link));
+}
+/* ---- image ---- */
+function shrink(dataUrl,maxW,q){return new Promise(res=>{const im=new Image();
+  im.onload=()=>{const sc=Math.min(1,maxW/im.width);const c=document.createElement('canvas');
+    c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q));};
+  im.onerror=()=>res('');im.src=dataUrl;});}
+document.getElementById('fImg').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    imgFull=await shrink(ev.target.result,1080,0.82);
+    imgThumb=await shrink(ev.target.result,220,0.55);
+    imgChanged=true;
+    const p=document.getElementById('preview');p.src=imgFull;p.style.display='block';
+    if(pendingImgId){await attachImage(pendingImgId);}
+    else toast('Screenshot attached');
+  };
+  r.readAsDataURL(f);});
+
+let pendingImgId=null;
+function addShotTo(id){pendingImgId=id;document.getElementById('fImg').click();}
+let pendingIdeaImg=null;
+function addShotToIdea(id){pendingIdeaImg=id;document.getElementById('iImg').click();}
+async function attachImage(id){
+  const it=DB.items.find(x=>x.id===id);if(!it)return;
+  await idbPut('images',id,imgFull);await idbPut('thumbs',id,imgThumb);
+  THUMBS[id]=imgThumb;it.thumb=imgThumb;it.hasImg=true;save();
+  imgFull='';imgThumb='';imgChanged=false;pendingImgId=null;
+  document.getElementById('fImg').value='';
+  document.getElementById('preview').style.display='none';
+  render();openDetail(id);toast('Screenshot added');
+}
+
+/* ---- pickers ---- */
+function buildPickers(){
+  document.getElementById('pickSource').innerHTML=SOURCES.map(s=>
+    `<button class="pick ${s===pickedSource?'on':''}" style="--c:#32ADE6" onclick="setSource('${s}')">${s}</button>`).join('');
+  document.getElementById('pickClass').innerHTML=CLASSES.map(c=>
+    `<button class="pick ${c===pickedClass?'on':''}" style="--c:${CLS_COLOR[c]}" onclick="setClass('${c}')">${c}</button>`).join('');
+}
+function setSource(s){pickedSource=s;buildPickers();}
+function setClass(c){pickedClass=c;buildPickers();}
+
+/* ---- form ---- */
+async function openForm(id,prefill){
+  const it=id?DB.items.find(x=>x.id===id):null;
+  editId=it?it.id:null;pendingImgId=null;
+  document.getElementById('formTitle').textContent=it?'Edit video':(prefill?'Review and add':'Save a video');
+  document.getElementById('saveBtnTxt').textContent=it?'Save changes':'Add to vault';
+  document.getElementById('fLink').value=it?it.link:'';
+  document.getElementById('fName').value=it?it.title:'';
+  document.getElementById('fWho').value=it?it.who:'';
+  document.getElementById('fTags').value=it?(it.tags||[]).join(', '):'';
+  document.getElementById('fLen').value=it?it.len:'5 to 15 min';
+  document.getElementById('fPri').value=it?it.pri:'Important';
+  document.getElementById('fLearn').value=it?(it.learn||''):'';
+  document.getElementById('fWhy').value=it?it.why:'';
+  pickedSource=it?it.source:'TikTok';pickedClass=it?it.cls:'Tech';
+  imgFull='';imgThumb='';imgChanged=false;
+  const p=document.getElementById('preview');p.style.display='none';p.removeAttribute('src');
+  if(it&&it.hasImg){const full=await idbGet('images',it.id);if(full){p.src=full;p.style.display='block';}}
+  document.getElementById('fImg').value='';
+  buildPickers();
+  if(prefill)fillForm(prefill);
+  document.getElementById('linkCopyRow').style.display=it&&it.link?'flex':'none';
+  if(it)document.getElementById('linkCopyRow').setAttribute('data-id',it.id);
+  formSnap.formModal=formVals('formModal');
+  openModal('formModal');
+  document.querySelector('#formModal .modal-box').scrollTop=0;
+}
+async function saveItem(){
+  const title=document.getElementById('fName').value.trim();
+  const link=document.getElementById('fLink').value.trim();
+  if(!title&&!link){toast('Add a link or a title first');return;}
+  if(!editId&&link&&isDupe(link)){if(!confirm('That link is already in your vault. Save it again anyway?'))return;}
+  const d={link:link,title:title||'Untitled video',
+    who:document.getElementById('fWho').value.trim(),source:pickedSource,cls:pickedClass,
+    tags:document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    len:document.getElementById('fLen').value,pri:document.getElementById('fPri').value,
+    learn:document.getElementById('fLearn').value.trim(),
+    why:document.getElementById('fWhy').value.trim()};
+  let id;
+  if(editId){const it=DB.items.find(x=>x.id===editId);Object.assign(it,d);id=editId;if(imgChanged)it.hasImg=true;}
+  else{id=uid();DB.items.unshift(Object.assign({id:id,ts:Date.now(),status:'vault',lesson:'',applied:false,added:today(),done:'',hasImg:imgChanged},d));}
+  if(imgChanged&&imgFull){await idbPut('images',id,imgFull);await idbPut('thumbs',id,imgThumb);THUMBS[id]=imgThumb;
+    const it2=DB.items.find(x=>x.id===id);if(it2){it2.thumb=imgThumb;it2.hasImg=true;}}
+  save();closeModal('formModal');render();toast(editId?'Updated':'Saved to vault');
+}
+
+/* ---- copy everything ---- */
+function fullText(i){
+  return `${i.title}
+${i.who?i.who+' · ':''}${i.source}
+${i.link||''}
+
+CLASS: ${i.cls}
+KEYWORDS: ${(i.tags||[]).join(', ')}
+LENGTH: ${i.len}
+PRIORITY: ${i.pri}
+SAVED: ${i.added}
+
+WHAT I WILL LEARN
+${i.learn||'not filled in yet'}
+
+WHY I SAVED IT
+${i.why||'not filled in yet'}
+
+LESSON
+${i.lesson||'not learned yet'}`;
+}
+function copyAll(id){copyText(fullText(DB.items.find(x=>x.id===id)),'Whole entry copied');}
+
+/* ---- render ---- */
+function tsOf(i){if(i.ts)return i.ts;const m=/^v(\d{13})/.exec(i.id||'');if(m)return +m[1];return Date.parse(i.added)||0;}
+function thumbOf(i){return i.thumb||THUMBS[i.id]||'';}
+function cardHTML(i){
+  const c=CLS_COLOR[i.cls]||'#8A8A8A';
+  const th=thumbOf(i);
+  const bare=(!i.learn&&(!i.tags||!i.tags.length));
+  return `<div class="v-card ${i.pri==='Very Important'&&i.status==='vault'?'pri-now':''} ${i.status==='learned'?'learned':''} ${bare?'bare':''}" onclick="pickOpen=null;openDetail('${i.id}')">
+    <div class="edge" style="--e:${c}"></div>
+    ${th?`<img class="thumb" src="${th}" alt="">`:`<div class="thumb-ph">▶</div>`}
+    <div class="v-meta">
+      <div class="v-title">${esc(i.title)}</div>
+      <div class="v-who">${i.who?esc(i.who)+' · ':''}${esc(i.source)}</div>
+      ${(i.tags&&i.tags.length)?`<div class="v-tags">${esc(i.tags.join(' · '))}</div>`:''}
+      <div class="badges">
+        <span class="badge bd-cls" style="color:${c};border-color:${c}44">${esc(i.cls)}</span>
+        <span class="badge bd-len">${esc(i.len)}</span>
+        ${i.pri!=='Normal'&&i.status==='vault'?`<span class="badge" style="background:${PRI_COLOR[i.pri]}22;color:${PRI_COLOR[i.pri]};border-color:${PRI_COLOR[i.pri]}55">${i.pri.toUpperCase()}</span>`:''}
+        ${i.applied?`<span class="badge bd-app">APPLIED</span>`:''}
+        ${bare?`<span class="badge bd-bare">NEEDS AI</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+function emptyHTML(ico,h,p){return `<div class="empty"><div class="ico">${ico}</div><h3>${h}</h3><p>${p}</p></div>`;}
+
+function render(){
+  const v=DB.items.filter(i=>i.status==='vault');
+  const w=DB.items.filter(i=>i.status==='watching');
+  const l=DB.items.filter(i=>i.status==='learned');
+  document.getElementById('sVault').textContent=v.length;
+  document.getElementById('sWatch').textContent=w.length;
+  document.getElementById('sLearn').textContent=l.length;
+  const pct=pctOf(l.length,DB.items.length);
+  document.getElementById('clearTxt').textContent=pct+'%';
+  document.getElementById('clearBar').style.width=pct+'%';
+  document.getElementById('backlogWarn').innerHTML=v.length>=30
+    ?`<div class="warn">${v.length} videos waiting. Clear a few before saving more, or this turns into another dead saved folder.</div>`:'';
+
+  ['vault','watching','learned'].forEach(k=>{
+    const el=document.getElementById('lbox-'+k);if(!el)return;
+    el.classList.toggle('on',k===listTab);
+    el.style.setProperty('--sel',k==='vault'?'#BF5AF2':k==='watching'?'#FF9F0A':'#30D158');
+  });
+  const chipRow=(list,cur,setter)=>['All',...new Set(list.map(i=>i.cls))].map(c=>
+    `<button class="chip ${c===cur?'on':''}" style="--c:${c==='All'?'#BF5AF2':CLS_COLOR[c]}" onclick="${setter}='${c}';render()">${c}</button>`).join('');
+  const active=listTab==='watching'?w:listTab==='learned'?l:v;
+  if(filterClass!=='All'&&!active.some(i=>i.cls===filterClass))filterClass='All';
+  document.getElementById('chips').innerHTML=chipRow(active,filterClass,'filterClass');
+  document.getElementById('freeMoment').style.display=listTab==='vault'?'block':'none';
+  document.getElementById('search').placeholder=listTab==='learned'?'Search your lessons':listTab==='watching'?'Search what you are watching':'Search title, creator or keyword';
+
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  const li=n=>LENS.indexOf(n);
+  let rows=active.filter(i=>{
+    if(filterClass!=='All'&&i.cls!==filterClass)return false;
+    if(!q)return true;
+    return (i.title+' '+i.who+' '+i.cls+' '+(i.tags||[]).join(' ')+' '+i.why+' '+(i.learn||'')+' '+(i.lesson||'')).toLowerCase().includes(q);
+  });
+  if(sortBy==='pri')rows.sort((a,b)=>((PO[a.pri]??9)-(PO[b.pri]??9))||(tsOf(b)-tsOf(a)));
+  else if(sortBy==='old')rows.sort((a,b)=>tsOf(a)-tsOf(b));
+  else rows.sort((a,b)=>tsOf(b)-tsOf(a));
+
+  document.getElementById('listVault').innerHTML=rows.length?rows.map(cardHTML).join('')
+    :listTab==='watching'?emptyHTML('▶️','Nothing in progress','Open a video and tap Move to Watching when you start it.')
+    :listTab==='learned'?emptyHTML('🎓','No lessons yet','Finish a video, write one line on what you learned, and it lands here for good.')
+    :emptyHTML('📥','Vault is empty','Send a screenshot and link to Claude with the word VAULT, then tap Paste.');
+  renderStats(l);
+}
+function renderStats(l){
+  const all=DB.items;
+  const pct=pctOf(l.length,all.length);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('stIdeas2',DB.ideas.length);
+  set('stPlans2',DB.plans.filter(p=>p.done).length);
+  set('stPlansLeft',DB.plans.filter(p=>!p.done).length);
+  document.getElementById('stPct').textContent=pct+'%';
+  document.getElementById('stSub').textContent=all.length?`${l.length} learned out of ${all.length} saved`:'Nothing saved yet';
+  document.getElementById('stApplied').textContent=l.filter(i=>i.applied).length;
+  document.getElementById('stQuick').textContent=all.filter(i=>i.status!=='learned'&&(i.len==='Under 5 min'||i.len==='5 to 15 min')).length;
+  document.getElementById('stTotal').textContent=all.length;
+  const byC={};all.forEach(i=>byC[i.cls]=(byC[i.cls]||0)+1);
+  const mx=Math.max(1,...Object.values(byC));
+  document.getElementById('stClasses').innerHTML=Object.keys(byC).length
+    ?Object.entries(byC).sort((a,b)=>b[1]-a[1]).map(([c,n])=>
+      `<div class="cls-row"><span class="cls-name" style="color:${CLS_COLOR[c]||'#fff'}">${esc(c)}</span>
+       <span class="cls-bar"><i style="width:${n/mx*100}%"></i></span><span class="cls-n">${n}</span></div>`).join('')
+    :`<p style="font-size:12px;color:#8A8A8A">Nothing saved yet.</p>`;
+  const byW={};all.forEach(i=>{if(i.who)byW[i.who]=(byW[i.who]||0)+1;});
+  const mw=Math.max(1,...Object.values(byW));
+  document.getElementById('stCreators').innerHTML=Object.keys(byW).length
+    ?Object.entries(byW).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([c,n])=>
+      `<div class="cls-row"><span class="cls-name">${esc(c)}</span>
+       <span class="cls-bar"><i style="width:${n/mw*100}%;background:linear-gradient(90deg,#FF9F0A,#FFD60A)"></i></span><span class="cls-n">${n}</span></div>`).join('')
+    :`<p style="font-size:12px;color:#8A8A8A">Add creator names and they will rank here.</p>`;
+}
+async function renderStorage(){
+  let txt='',pct=0,note='';
+  if(navigator.storage&&navigator.storage.estimate){
+    const e=await navigator.storage.estimate();
+    const usedMB=e.usage/1048576, quotaMB=e.quota/1048576;
+    pct=quotaMB?Math.round(usedMB/quotaMB*100):0;
+    txt=usedMB.toFixed(1)+' MB of about '+(quotaMB>1024?(quotaMB/1024).toFixed(1)+' GB':Math.round(quotaMB)+' MB');
+    const imgs=DB.items.filter(i=>i.hasImg).length+DB.ideas.filter(i=>i.hasImg).length+DB.plans.reduce((n,p)=>n+(p.imgs||[]).length,0);
+    const kb=Math.round((localStorage.getItem(KEY)||'').length/1024);
+    note=imgs+' screenshot'+(imgs===1?'':'s')+' stored. Text and thumbnails use '+kb+' KB of about 5 MB'+(kb>4000?'. Getting full, export a backup and delete old learned items.':'.');
+  }else{txt='Not reported by this browser';}
+  document.getElementById('stoTxt').textContent=txt;
+  document.getElementById('stoPct').textContent=pct+'%';
+  document.getElementById('stoBar').style.width=Math.max(2,pct)+'%';
+  document.getElementById('stoNote').textContent=note;
+  if(navigator.storage&&navigator.storage.persisted){
+    const p=await navigator.storage.persisted();
+    document.getElementById('persistState').textContent=p?'Protected. Chrome will not clear this on its own.':'Not protected yet.';
+  }
+}
+async function askPersist(){
+  if(!navigator.storage||!navigator.storage.persist){toast('Not supported here');return;}
+  const ok=await navigator.storage.persist();
+  toast(ok?'Protected storage granted':'Chrome declined for now');renderStorage();
+}
+
+
+/* ============ TAP TO EDIT ============ */
+let pickOpen=null, curEdit=null;
+function getObj(kind,id){return kind==='v'?DB.items.find(x=>x.id===id):DB.ideas.find(x=>x.id===id);}
+function reopen(kind,id){kind==='v'?(render(),openDetail(id)):(renderIdeas(),openIdea(id));}
+/* Opens an edit box inside the tapped area. Taps inside the box never restart it,
+   so the cursor stays where you put it. */
+function startEdit(ev,o){
+  if(ev)ev.stopPropagation();
+  const el=ev&&ev.currentTarget;if(!el)return;
+  if(el.querySelector('.ed-wrap'))return;
+  if(curEdit){curEdit.finish('save');return;}
+  const multi=!!o.multi;
+  el.innerHTML=`<span class="ed-wrap">${multi?'<textarea class="modal-input ed-box" rows="2"></textarea>':'<input class="modal-input ed-box" type="text">'}<span class="ed-bar"><span class="ed-tip">${multi?'Tap anywhere in the text to move the cursor':'Press Enter or tap Save'}</span><button type="button" class="ed-save">✓ Save</button></span></span>`;
+  const wrap=el.querySelector('.ed-wrap'),inp=el.querySelector('.ed-box'),btn=el.querySelector('.ed-save');
+  wrap.addEventListener('click',e=>e.stopPropagation());
+  inp.value=o.val||'';if(o.ph)inp.placeholder=o.ph;
+  const fit=()=>{if(!multi)return;inp.style.height='auto';inp.style.height=Math.max(96,inp.scrollHeight+4)+'px';};
+  inp.addEventListener('input',fit);
+  fit();inp.focus();fit();
+  const L=inp.value.length;try{inp.setSelectionRange(L,L);}catch(e){}
+  let done=false;
+  const finish=mode=>{
+    if(done)return;done=true;curEdit=null;
+    if(mode==='cancel'){if(o.cancel)o.cancel();return;}
+    o.save(inp.value,mode!=='silent');
+  };
+  curEdit={finish:finish};
+  inp.addEventListener('blur',()=>finish('save'));
+  const hold=e=>e.preventDefault();
+  btn.addEventListener('pointerdown',hold);btn.addEventListener('mousedown',hold);
+  btn.addEventListener('click',e=>{e.stopPropagation();finish('save');});
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!multi){e.preventDefault();finish('save');}
+    else if(e.key==='Escape'){e.preventDefault();finish('cancel');}
+  });
+}
+function editField(kind,id,key,multi,ev){
+  const o=getObj(kind,id);if(!o)return;
+  const val=key==='tags'?(o.tags||[]).join(', '):(o[key]||'');
+  startEdit(ev,{val:val,multi:multi,save:(v,re)=>commitEdit(kind,id,key,v,re),cancel:()=>reopen(kind,id)});
+}
+function commitEdit(kind,id,key,val,re){
+  const o=getObj(kind,id);if(!o)return;
+  const before=JSON.stringify(key==='tags'?(o.tags||[]):(o[key]||''));
+  if(key==='tags')o.tags=val.split(',').map(x=>x.trim()).filter(Boolean);
+  else if(key==='title'&&!val.trim()){}
+  else o[key]=val.trim();
+  const changed=JSON.stringify(key==='tags'?(o.tags||[]):(o[key]||''))!==before;
+  if(changed)save();
+  if(kind==='v')render();else renderIdeas();
+  if(re&&isOpen('detailModal'))(kind==='v'?openDetail(id):openIdea(id));
+  if(changed)toast('Saved');
+}
+const PICKS={pri:()=>PRIS,cls:()=>CLASSES,len:()=>LENS,source:()=>SOURCES,status:()=>['idea','making','done']};
+const PICKLABEL={pri:'Importance',cls:'Class',len:'Length',source:'Platform',status:'Status'};
+function openPick(kind,id,key,ev){ev.stopPropagation();pickOpen=(pickOpen===key)?null:key;reopen(kind,id);}
+function setField(kind,id,key,val){
+  const o=getObj(kind,id);if(!o)return;
+  o[key]=val;pickOpen=null;save();reopen(kind,id);toast('Saved');
+}
+function pickPanelHTML(kind,id){
+  if(!pickOpen)return '';
+  const opts=PICKS[pickOpen]();
+  const cur=getObj(kind,id)[pickOpen];
+  const colr=o=>pickOpen==='cls'?CLS_COLOR[o]:pickOpen==='pri'?PRI_COLOR[o]:(kind==='i'?'#FFD60A':'#BF5AF2');
+  return `<div class="pickpanel"><div class="k">${PICKLABEL[pickOpen]}</div><div class="row2">
+    ${opts.map(o=>`<button class="chip ${o===cur?'on':''}" style="--c:${colr(o)}" onclick="setField('${kind}','${id}','${pickOpen}','${o}')">${pickOpen==='status'?ISTATUS[o]:o}</button>`).join('')}
+  </div></div>`;
+}
+
+/* ---- detail ---- */
+function learnHTML(txt){
+  if(!txt)return '';
+  const lines=txt.split('\n').map(s=>s.replace(/^[-•*]\s*/,'').trim()).filter(Boolean);
+  if(!lines.length)return '';
+  return `<div class="learn-box"><span class="lk">What I will learn from this video</span><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`;
+}
+async function openDetail(id){
+  const i=DB.items.find(x=>x.id===id);if(!i)return;
+  const c=CLS_COLOR[i.cls]||'#8A8A8A';
+  const full=(i.hasImg?await idbGet('images',id):null)||i.thumb||THUMBS[id]||'';
+  const lost=i.hasImg&&!full;
+  curDetail='v:'+id;
+  document.getElementById('detailBody').innerHTML=`
+    ${full?`<img class="d-img" src="${full}" alt="" onclick="addShotTo('${i.id}')">`:''}
+    ${lost?`<div class="warn">The screenshot for this one was lost. Tap Add screenshot below.</div>`:''}
+    ${!full?`<button class="btn-half purple" style="width:100%;margin-bottom:12px" onclick="addShotTo('${i.id}')">📷 Add screenshot</button>`:''}
+    <div class="d-title ed" onclick="editField('v','${i.id}','title',false,event)">${esc(i.title)}</div>
+    <div class="d-who"><span class="ed" onclick="editField('v','${i.id}','who',false,event)">${i.who?esc(i.who):'add creator'}</span> · <span class="ed" onclick="openPick('v','${i.id}','source',event)">${esc(i.source)}</span></div>
+    <div class="d-meta">
+      <div class="d-cell tap" onclick="openPick('v','${i.id}','cls',event)"><div class="k">Class</div><div class="v" style="color:${c}">${esc(i.cls)}</div></div>
+      <div class="d-cell tap" onclick="openPick('v','${i.id}','len',event)"><div class="k">Length</div><div class="v">${esc(i.len)}</div></div>
+      <div class="d-cell tap" onclick="openPick('v','${i.id}','pri',event)"><div class="k">Importance</div><div class="v" style="color:${PRI_COLOR[i.pri]||'#fff'}">${esc(i.pri)}</div></div>
+      <div class="d-cell"><div class="k">Saved</div><div class="v">${esc(i.added)}</div></div>
+    </div>
+    ${pickPanelHTML('v',i.id)}
+    <div class="d-cell tap" style="margin-bottom:12px" onclick="editField('v','${i.id}','tags',false,event)"><div class="k">Keywords</div><div class="v" style="font-size:12px;font-weight:700;line-height:1.5">${(i.tags&&i.tags.length)?esc(i.tags.join(', ')):'tap to add'}</div></div>
+    <div class="linkbox" onclick="editField('v','${i.id}','link',false,event)">${i.link?esc(i.link):'tap to add a link'}</div>
+    <div onclick="editField('v','${i.id}','learn',true,event)">${learnHTML(i.learn)||`<div class="learn-box"><span class="lk">What I will learn from this video</span><div style="font-size:13px;color:#8A8A8A">tap to add</div></div>`}</div>
+    <div class="note" onclick="editField('v','${i.id}','why',true,event)"><span class="nk">Why you saved it</span>${i.why?esc(i.why):'tap to add'}</div>
+    ${i.lesson?`<div class="note green" onclick="editField('v','${i.id}','lesson',true,event)"><span class="nk">What you learned</span>${esc(i.lesson)}</div>`:''}
+    <div class="tiphint">Tap any part above to change it</div>
+
+    <div class="btn-row" style="margin-top:0">
+      ${i.link?`<button class="btn-half blue" onclick="window.open('${esc(i.link)}','_blank','noopener')">▶ Open video</button>`:''}
+      <button class="btn-half purple" onclick="copyAll('${i.id}')">📋 Copy everything</button>
+    </div>
+    <div class="btn-row">
+      ${i.status!=='watching'?`<button class="btn-half orange" onclick="setStatus('${i.id}','watching')">Move to Watching</button>`:''}
+      ${i.status!=='vault'?`<button class="btn-half" onclick="setStatus('${i.id}','vault')">Back to Vault</button>`:''}
+      <button class="btn-half yellow" onclick="sendToIdeas('${i.id}')">💡 Send to Ideas</button>
+    </div>
+    ${i.status!=='learned'?`
+      <label class="modal-label" style="margin-top:16px">What did you learn</label>
+      <textarea class="modal-input" id="dLesson" placeholder="One or two lines you can actually use">${esc(i.lesson)}</textarea>
+      <button class="btn-green" onclick="markLearned('${i.id}')">Mark as learned</button>`
+    :`<button class="${i.applied?'btn-half':'btn-green'}" style="width:100%;margin-top:6px" onclick="toggleApplied('${i.id}')">${i.applied?'✓ Applied in real life':'Mark as applied in real life'}</button>`}
+    <div class="btn-row">
+      <button class="btn-danger" style="flex:1" onclick="delItem('${i.id}')">Delete</button>
+    </div>
+    <button class="btn-half" style="width:100%;margin-top:10px" onclick="closeModal('detailModal')">Close</button>`;
+  openModal('detailModal');
+}
+async function refillFromAI(id){
+  const txt=await readClip();if(txt===null)return;
+  const d=parseBlock(txt);
+  if(!d){toast('That is not a VAULT block. Copy the whole reply.');return;}
+  const i=DB.items.find(x=>x.id===id);
+  i.title=d.title||i.title;i.who=d.who||i.who;i.source=d.source;i.cls=d.cls;
+  if(d.tags.length)i.tags=d.tags;
+  i.len=d.len;i.pri=d.pri;i.learn=d.learn||i.learn;i.why=d.why||i.why;
+  if(d.link&&!i.link)i.link=d.link;
+  save();render();openDetail(id);toast('Entry filled in from the AI');
+}
+function copyLink(id){copyText(DB.items.find(x=>x.id===id).link,'Link copied');}
+function setStatus(id,s){const i=DB.items.find(x=>x.id===id);i.status=s;if(s!=='learned')i.done='';save();closeModal('detailModal');render();toast(s==='watching'?'Moved to Watching':'Back in the vault');}
+function markLearned(id){
+  const i=DB.items.find(x=>x.id===id);if(!i)return;
+  const prev={status:i.status,done:i.done||'',lesson:i.lesson||''};
+  i.lesson=document.getElementById('dLesson').value.trim();
+  i.status='learned';i.done=today();save();closeModal('detailModal');render();
+  toastUndo('Logged as learned',()=>{
+    const q=DB.items.find(x=>x.id===id);if(!q)return;
+    q.status=prev.status;q.done=prev.done;q.lesson=prev.lesson;save();render();toast('Undone');});
+}
+function toggleApplied(id){
+  const i=DB.items.find(x=>x.id===id);if(!i)return;
+  const prev=!!i.applied;i.applied=!prev;save();closeModal('detailModal');render();
+  toastUndo(i.applied?'Marked as applied':'No longer marked as applied',()=>{
+    const q=DB.items.find(x=>x.id===id);if(!q)return;q.applied=prev;save();render();toast('Undone');});
+}
+async function delItem(id){
+  if(!confirm('Delete this video from the vault?'))return;
+  DB.items=DB.items.filter(x=>x.id!==id);
+  await idbDel('images',id);await idbDel('thumbs',id);delete THUMBS[id];
+  save();closeModal('detailModal');render();toast('Deleted');
+}
+
+/* ---- time filter ---- */
+function fitsTime(i,band){
+  if(band==='short')return i.len==='Under 5 min';
+  if(band==='mid')return i.len==='Under 5 min'||i.len==='5 to 15 min';
+  return i.len!=='Over 45 min';
+}
+function openTime(b){
+  const name={short:'5 min',mid:'20 min',long:'1 hour'}[b];
+  const list=DB.items.filter(i=>i.status==='vault'&&fitsTime(i,b))
+    .sort((x,y)=>((PO[x.pri]??9)-(PO[y.pri]??9))||(tsOf(y)-tsOf(x)));
+  document.getElementById('timeBody').innerHTML=`
+    <div class="modal-title">Fits in ${name} · ${list.length} video${list.length===1?'':'s'}</div>
+    ${list.length?list.map(i=>cardHTML(i).replace(`onclick="pickOpen=null;openDetail('${i.id}')"`,`onclick="swapOutModal('timeModal');pickOpen=null;openDetail('${i.id}')"`)).join('')
+      :emptyHTML('⏱','Nothing fits that window','Nothing in your vault is short enough for this. Try a longer time.')}
+    <button class="btn-half" style="width:100%;margin-top:10px" onclick="closeModal('timeModal')">Close</button>`;
+  openModal('timeModal');
+  document.querySelector('#timeModal .modal-box').scrollTop=0;
+}
+
+/* ---- backup ---- */
+async function exportData(){
+  toast('Building backup');
+  const images=await idbAll('images'), thumbs=await idbAll('thumbs');
+  const pack={v:7,items:DB.items,ideas:DB.ideas||[],groups:DB.groups||[],plans:DB.plans||[],images:images,thumbs:thumbs};
+  const b=new Blob([JSON.stringify(pack)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='LearnVault_backup_'+today()+'.json';a.click();toast('Backup downloaded');
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{try{
+    const d=JSON.parse(ev.target.result);
+    if(!d.items)throw 0;
+    if(!confirm('Replace everything currently in the vault with this backup?'))return;
+    if(d.v>=3){
+      DB={items:d.items.map(normalize),ideas:(d.ideas||[]).map(normIdea),groups:d.groups||[],plans:(d.plans||[]).map(normPlan),mode:DB.mode||'learn'};
+      await idbClear('images');await idbClear('thumbs');THUMBS={};
+      for(const k in (d.images||{}))await idbPut('images',k,d.images[k]);
+      for(const k in (d.thumbs||{})){await idbPut('thumbs',k,d.thumbs[k]);THUMBS[k]=d.thumbs[k];}
+      DB.items.forEach(it=>{if(!it.thumb&&THUMBS[it.id])it.thumb=THUMBS[it.id];});
+      DB.ideas.forEach(it=>{if(!it.thumb&&THUMBS[it.id])it.thumb=THUMBS[it.id];});
+    }else{await adoptV2(d.items);}
+    ensureIdeas();save();render();renderIdeas();renderPlans();toast('Backup restored');
+  }catch(err){toast('That file is not a Learn Vault backup');}};
+  r.readAsText(f);e.target.value='';
+}
+async function wipeAll(){
+  if(!confirm('Erase every saved video, lesson, idea, plan and screenshot? This cannot be undone.'))return;
+  if(!confirm('Last check. Export a backup first if you want to keep anything.'))return;
+  DB={items:[],ideas:[],groups:[],plans:[],mode:'learn'};THUMBS={};planGroup=null;planView='groups';
+  await idbClear('images');await idbClear('thumbs');
+  save();render();renderPlans();renderStorage();toast('Vault erased');
+}
+
+
+/* ================= IDEAS ================= */
+const ISTATUS={idea:'Idea',making:'Making',done:'Done'};
+let planGroup=null, pendingPlanImg=null, listTab='vault';
+let iFilterC='All', iFilterS='idea', iEditId=null, iImgFull='', iImgThumb='', iImgChanged=false, iSource='TikTok', iClass='Content';
+
+function setMode(m){
+  DB.mode=m;save();
+  const ideas=m==='ideas';
+  document.getElementById('mode-learn').classList.toggle('on',!ideas);
+  document.getElementById('mode-ideas').classList.toggle('on',ideas);
+  document.getElementById('learnHome').style.display=ideas?'none':'block';
+  document.getElementById('ideasHome').style.display=ideas?'block':'none';
+  go('home');
+}
+function normIdea(o){
+  return {id:o.id||uid(),ts:o.ts||0,title:o.title||'Untitled idea',link:o.link||'',who:o.who||'',
+    source:o.source||'Other',cls:o.cls||'Other',angle:o.angle||'',status:ISTATUS[o.status]?o.status:'idea',
+    added:o.added||today(),thumb:o.thumb||'',hasImg:!!o.hasImg||!!o.thumb};
+}
+function isIdeaBlock(txt){return !!txt&&/^\s*IDEA\s*:/im.test(txt);}
+function parseIdea(txt){
+  if(!txt)return null;
+  const hasIdea=/^\s*IDEA\s*:/im.test(txt), hasTitle=/^\s*TITLE\s*:/im.test(txt);
+  if(!hasIdea&&!hasTitle)return null;
+  const out={};let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*([A-Za-z ]{3,12})\s*:\s*(.*)$/);
+    if(m&&KEYS.indexOf(m[1].trim().toUpperCase())>-1){cur=m[1].trim().toUpperCase();out[cur]=m[2].trim();}
+    else if(cur){out[cur]=(out[cur]?out[cur]+'\n':'')+line.trim();}
+  });
+  KEYS.forEach(k=>{out[k]=(out[k]||'').trim();});
+  const norm=(val,list,def)=>{const v=(val||'').toLowerCase();return list.find(x=>x.toLowerCase()===v)||list.find(x=>v.includes(x.toLowerCase()))||def;};
+  const lm=(out.LINK||'').match(/https?:\/\/\S+/)||txt.match(/https?:\/\/\S+/);
+  return {title:out.IDEA||out.TITLE,who:out.CREATOR,source:norm(out.PLATFORM,SOURCES,'Other'),
+    cls:norm(out.CLASS,CLASSES,'Other'),angle:out.ANGLE||[out.LEARN,out.WHY].filter(Boolean).join('\n'),
+    link:lm?lm[0]:''};
+}
+function isIdeaDupe(link){
+  if(!link)return false;
+  const c=l=>l.replace(/[?#].*$/,'').replace(/\/$/,'').toLowerCase();
+  return DB.ideas.some(i=>i.link&&c(i.link)===c(link));
+}
+async function pasteIdea(){
+  const txt=await readClip();if(txt===null)return;
+  if(isPlanBlock(txt)){const dp=parsePlan(txt);if(dp){go('plans');openPlanForm(dp);toast('That was a plan, so it went to Plans');}return;}
+  const d=parseIdea(txt);
+  if(!d){toast('Nothing readable on the clipboard. Copy the whole reply.');return;}
+  if(d.link&&isIdeaDupe(d.link))toast('Heads up, that link is already in your ideas');
+  await openIdeaForm(null,d);
+}
+async function pasteIntoIdeaForm(){
+  const txt=await readClip();if(txt===null)return;
+  const d=parseIdea(txt);
+  if(!d){toast('Nothing readable on the clipboard. Copy the whole reply.');return;}
+  fillIdeaForm(d);toast('Filled in. Check it, then add it.');
+}
+function buildIdeaPickers(){
+  document.getElementById('iPickSource').innerHTML=SOURCES.map(x=>
+    `<button class="pick ${x===iSource?'on':''}" style="--c:#32ADE6" onclick="iSource='${x}';buildIdeaPickers()">${x}</button>`).join('');
+  document.getElementById('iPickClass').innerHTML=CLASSES.map(c=>
+    `<button class="pick ${c===iClass?'on':''}" style="--c:${CLS_COLOR[c]}" onclick="iClass='${c}';buildIdeaPickers()">${c}</button>`).join('');
+}
+function fillIdeaForm(d){
+  if(d.title)document.getElementById('iName').value=d.title;
+  if(d.link)document.getElementById('iLink').value=d.link;
+  if(d.who)document.getElementById('iWho').value=d.who;
+  if(d.angle)document.getElementById('iAngle').value=d.angle;
+  iSource=d.source||iSource;iClass=d.cls||iClass;buildIdeaPickers();
+}
+async function openIdeaForm(id,prefill){
+  const it=id?DB.ideas.find(x=>x.id===id):null;
+  iEditId=it?it.id:null;
+  document.getElementById('iFormTitle').textContent=it?'Edit idea':(prefill?'Review and add':'Save an idea');
+  document.getElementById('iSaveTxt').textContent=it?'Save changes':'Add to ideas';
+  document.getElementById('iName').value=it?it.title:'';
+  document.getElementById('iLink').value=it?it.link:'';
+  document.getElementById('iWho').value=it?it.who:'';
+  document.getElementById('iAngle').value=it?it.angle:'';
+  iSource=it?it.source:'TikTok';iClass=it?it.cls:'Content';
+  iImgFull='';iImgThumb='';iImgChanged=false;
+  const p=document.getElementById('iPreview');p.style.display='none';p.removeAttribute('src');
+  if(it&&it.hasImg){const full=(await idbGet('images',it.id))||it.thumb;if(full){p.src=full;p.style.display='block';}}
+  document.getElementById('iImg').value='';
+  buildIdeaPickers();
+  if(prefill)fillIdeaForm(prefill);
+  formSnap.ideaModal=formVals('ideaModal');
+  openModal('ideaModal');
+  document.querySelector('#ideaModal .modal-box').scrollTop=0;
+}
+document.getElementById('iImg').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    iImgFull=await shrink(ev.target.result,1080,0.82);
+    iImgThumb=await shrink(ev.target.result,220,0.55);
+    iImgChanged=true;
+    if(pendingIdeaImg){
+      const it=DB.ideas.find(x=>x.id===pendingIdeaImg);
+      if(it){await idbPut('images',it.id,iImgFull);await idbPut('thumbs',it.id,iImgThumb);
+        THUMBS[it.id]=iImgThumb;it.thumb=iImgThumb;it.hasImg=true;save();}
+      const id2=pendingIdeaImg;pendingIdeaImg=null;iImgFull='';iImgThumb='';iImgChanged=false;
+      document.getElementById('iImg').value='';
+      renderIdeas();openIdea(id2);toast('Screenshot added');return;
+    }
+    const p=document.getElementById('iPreview');p.src=iImgFull;p.style.display='block';
+    toast('Screenshot attached');
+  };
+  r.readAsDataURL(f);
+});
+async function saveIdea(){
+  const title=document.getElementById('iName').value.trim();
+  const link=document.getElementById('iLink').value.trim();
+  if(!title&&!link){toast('Add the idea or a link first');return;}
+  if(!iEditId&&link&&isIdeaDupe(link)){if(!confirm('That link is already in your ideas. Save it again anyway?'))return;}
+  const d={title:title||'Untitled idea',link:link,who:document.getElementById('iWho').value.trim(),
+    source:iSource,cls:iClass,angle:document.getElementById('iAngle').value.trim()};
+  let id;
+  if(iEditId){const it=DB.ideas.find(x=>x.id===iEditId);Object.assign(it,d);id=iEditId;}
+  else{id=uid();DB.ideas.unshift(Object.assign({id:id,ts:Date.now(),status:'idea',added:today(),thumb:'',hasImg:false},d));}
+  if(iImgChanged&&iImgFull){
+    await idbPut('images',id,iImgFull);await idbPut('thumbs',id,iImgThumb);THUMBS[id]=iImgThumb;
+    const it2=DB.ideas.find(x=>x.id===id);it2.thumb=iImgThumb;it2.hasImg=true;
+  }
+  const wasEdit=!!iEditId;
+  save();closeModal('ideaModal');renderIdeas();toast(wasEdit?'Updated':'Added to ideas');
+}
+function ideaCard(i){
+  const c=CLS_COLOR[i.cls]||'#8A8A8A', th=thumbOf(i);
+  return `<div class="v-card ${i.status==='done'?'idea-done':''}" onclick="pickOpen=null;openIdea('${i.id}')">
+    <div class="edge" style="--e:${c}"></div>
+    ${th?`<img class="thumb" src="${th}" alt="">`:`<div class="thumb-ph">💡</div>`}
+    <div class="v-meta">
+      <div class="v-title">${esc(i.title)}</div>
+      <div class="v-who" style="color:#FFD60A">${i.who?'From '+esc(i.who)+' · ':''}${esc(i.source)}</div>
+      <div class="badges">
+        <span class="badge bd-cls" style="color:${c};border-color:${c}44">${esc(i.cls)}</span>
+        <span class="badge bd-st-${i.status}">${ISTATUS[i.status].toUpperCase()}</span>
+      </div>
+    </div></div>`;
+}
+function renderIdeas(){
+  const all=DB.ideas;
+  document.getElementById('iIdea').textContent=all.filter(i=>i.status==='idea').length;
+  document.getElementById('iMaking').textContent=all.filter(i=>i.status==='making').length;
+  document.getElementById('iDone').textContent=all.filter(i=>i.status==='done').length;
+  ['idea','making','done'].forEach(k=>{
+    const el=document.getElementById('ibox-'+k);if(!el)return;
+    el.classList.toggle('on',k===iFilterS);
+    el.style.setProperty('--sel',k==='idea'?'#FFD60A':k==='making'?'#FF9F0A':'#30D158');
+  });
+  if(iFilterC!=='All'&&!all.some(i=>i.cls===iFilterC))iFilterC='All';
+  document.getElementById('chipsIC').innerHTML=['All',...new Set(all.map(i=>i.cls))].map(c=>
+    `<button class="chip ${c===iFilterC?'on':''}" style="--c:${c==='All'?'#FFD60A':CLS_COLOR[c]}" onclick="iFilterC='${c}';renderIdeas()">${c}</button>`).join('');
+  const q=document.getElementById('searchI').value.toLowerCase().trim();
+  const rows=all.filter(i=>(iFilterC==='All'||i.cls===iFilterC)&&(i.status===iFilterS)
+    &&(!q||(i.title+' '+i.who+' '+i.angle+' '+i.cls).toLowerCase().includes(q)))
+    .sort((a,b)=>tsOf(b)-tsOf(a));
+  document.getElementById('listIdeas').innerHTML=rows.length?rows.map(ideaCard).join('')
+    :emptyHTML('💡',iFilterS==='making'?'Nothing being made':iFilterS==='done'?'Nothing done yet':(all.length?'Nothing matches':'No ideas yet'),
+      iFilterS==='making'?'Open an idea and tap Start making it.':iFilterS==='done'?'Finish an idea and tap Mark as done.':'Send a screenshot and link with the word IDEA, then tap Paste.');
+}
+async function openIdea(id){
+  const i=DB.ideas.find(x=>x.id===id);if(!i)return;
+  const c=CLS_COLOR[i.cls]||'#8A8A8A';
+  const full=(i.hasImg?await idbGet('images',id):null)||i.thumb||THUMBS[id]||'';
+  const lines=(i.angle||'').split('\n').map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean);
+  const next=i.status==='idea'?['making','Start making it']:i.status==='making'?['done','Mark as done']:null;
+  curDetail='i:'+id;
+  document.getElementById('detailBody').innerHTML=`
+    ${full?`<img class="d-img" src="${full}" alt="" onclick="addShotToIdea('${i.id}')">`:''}
+    ${i.hasImg&&!full?`<div class="warn">The screenshot for this one was lost. Tap Add screenshot below.</div>`:''}
+    ${!full?`<button class="btn-half yellow" style="width:100%;margin-bottom:12px" onclick="addShotToIdea('${i.id}')">📷 Add screenshot</button>`:''}
+    <div class="d-title ed" onclick="editField('i','${i.id}','title',false,event)">${esc(i.title)}</div>
+    <div class="d-who" style="color:#FFD60A">From <span class="ed" onclick="editField('i','${i.id}','who',false,event)">${i.who?esc(i.who):'add creator'}</span> · <span class="ed" onclick="openPick('i','${i.id}','source',event)">${esc(i.source)}</span></div>
+    <div class="d-meta">
+      <div class="d-cell tap" onclick="openPick('i','${i.id}','cls',event)"><div class="k">Class</div><div class="v" style="color:${c}">${esc(i.cls)}</div></div>
+      <div class="d-cell tap" onclick="openPick('i','${i.id}','status',event)"><div class="k">Status</div><div class="v">${ISTATUS[i.status]}</div></div>
+    </div>
+    ${pickPanelHTML('i',i.id)}
+    <div class="linkbox" onclick="editField('i','${i.id}','link',false,event)">${i.link?esc(i.link):'tap to add a link'}</div>
+    <div onclick="editField('i','${i.id}','angle',true,event)">${lines.length
+      ?`<div class="learn-box" style="background:#1A160D;border-color:#4A3F1A"><span class="lk" style="color:#FFD60A">What makes it a good idea</span><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`
+      :`<div class="learn-box" style="background:#1A160D;border-color:#4A3F1A"><span class="lk" style="color:#FFD60A">What makes it a good idea</span><div style="font-size:13px;color:#8A8A8A">tap to add</div></div>`}</div>
+    <div class="tiphint">Tap any part above to change it</div>
+    <div class="btn-row" style="margin-top:0">
+      ${i.link?`<button class="btn-half blue" onclick="window.open('${esc(i.link)}','_blank','noopener')">▶ Open video</button>`:''}
+      <button class="btn-half yellow" onclick="copyIdea('${i.id}')">📋 Copy everything</button>
+    </div>
+    <div class="btn-row">
+      ${i.status==='idea'?`<button class="btn-half orange" onclick="setIdeaStatus('${i.id}','making')">Start making it</button>`:''}
+      ${i.status!=='done'?`<button class="btn-half green" onclick="setIdeaStatus('${i.id}','done')">✓ Mark as done</button>`:''}
+      ${i.status!=='idea'?`<button class="btn-half" onclick="setIdeaStatus('${i.id}','idea')">Back to Idea</button>`:''}
+    </div>
+    <div class="btn-row">
+      <button class="btn-danger" style="flex:1" onclick="delIdea('${i.id}')">Delete</button>
+    </div>
+    <button class="btn-half" style="width:100%;margin-top:10px" onclick="closeModal('detailModal')">Close</button>`;
+  openModal('detailModal');
+}
+function setIdeaStatus(id,s){
+  const i=DB.ideas.find(x=>x.id===id);if(!i)return;
+  const prev=i.status;i.status=s;save();closeModal('detailModal');renderIdeas();
+  toastUndo(s==='making'?'Moved to Making':s==='done'?'Marked as done':'Back to Idea',()=>{
+    const q=DB.ideas.find(x=>x.id===id);if(!q)return;q.status=prev;save();renderIdeas();toast('Undone');});
+}
+async function delIdea(id){
+  if(!confirm('Delete this idea?'))return;
+  DB.ideas=DB.ideas.filter(x=>x.id!==id);
+  await idbDel('images',id);await idbDel('thumbs',id);delete THUMBS[id];
+  save();closeModal('detailModal');renderIdeas();toast('Deleted');
+}
+function copyIdea(id){
+  const i=DB.ideas.find(x=>x.id===id);
+  copyText(`IDEA: ${i.title}\n${i.who?i.who+' · ':''}${i.source}\n${i.link||''}\n\nCLASS: ${i.cls}\nSTATUS: ${ISTATUS[i.status]}\n\nWHAT MAKES IT A GOOD IDEA\n${i.angle||'not filled in yet'}`,'Whole idea copied');
+}
+function sendToIdeas(id){
+  const i=DB.items.find(x=>x.id===id);if(!i)return;
+  if(!confirm('Move this video out of Learn and into Ideas?'))return;
+  const angle=[i.learn,i.why].filter(Boolean).join('\n');
+  DB.ideas.unshift({id:i.id,ts:Date.now(),title:i.title,link:i.link,who:i.who,source:i.source,cls:i.cls,
+    angle:angle,status:'idea',added:today(),thumb:i.thumb||'',hasImg:!!i.hasImg});
+  DB.items=DB.items.filter(x=>x.id!==id);
+  save();closeModal('detailModal');render();toast('Moved to Ideas');
+}
+
+
+/* ================= PLANS ================= */
+let planView='groups', pSort='pri', pGroupF='All', doneOpen=false, planPick=null;
+function groupStats(gid){
+  const rows=DB.plans.filter(p=>p.gid===gid);
+  return {n:rows.length,done:rows.filter(p=>p.done).length};
+}
+function groupName(gid){const g=DB.groups.find(x=>x.id===gid);return g?g.name:'';}
+function planTitle(p){
+  const t=(p.title||'').trim();if(t)return t;
+  return (p.text||'').split('\n').map(s=>s.trim()).find(Boolean)||'Untitled plan';
+}
+function pctCol(pct,n){return !n?'#8A8A8A':pct>=100?'#30D158':pct>0?'#FF9F0A':'#FF453A';}
+function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
+function newGroup(){
+  const name=prompt('Name this group','');
+  if(!name||!name.trim())return;
+  DB.groups.unshift({id:uid(),ts:Date.now(),name:name.trim(),added:today()});
+  save();renderPlans();toast('Group added');
+}
+function newPlan(){openPlanForm(null);}
+function openGroup(gid){planGroup=gid;doneOpen=false;enterGroupLayer();renderPlans();window.scrollTo(0,0);}
+function closeGroupView(){planGroup=null;dropLayer('group');renderPlans();window.scrollTo(0,0);}
+function setPlanView(v){
+  if(v!==planView){planView=v;pSort=v==='done'?'new':'pri';pGroupF='All';}
+  renderPlans();
+}
+function setPlanDone(id,val,ev){
+  if(ev)ev.stopPropagation();
+  const p=DB.plans.find(x=>x.id===id);if(!p)return;
+  const prev={done:!!p.done,doneAt:p.doneAt||0};
+  p.done=!!val;p.doneAt=val?Date.now():0;
+  save();renderPlans();
+  if(isOpen('detailModal')&&curDetail==='p:'+id)openPlan(id);
+  toastUndo(val?'Marked as done':'Back on the to do list',()=>{
+    const q=DB.plans.find(x=>x.id===id);if(!q)return;
+    q.done=prev.done;q.doneAt=prev.doneAt;save();renderPlans();
+    if(isOpen('detailModal')&&curDetail==='p:'+id)openPlan(id);
+    toast('Undone');
+  });
+}
+/* finishing buttons inside a popup close it straight away */
+function planDoneFromDetail(id,val){closeModal('detailModal');setPlanDone(id,val);}
+function sortPlans(rows,mode,byDone){
+  const t=p=>byDone?(p.doneAt||tsOf(p)):tsOf(p);
+  if(mode==='new')return rows.sort((a,b)=>t(b)-t(a));
+  if(mode==='old')return rows.sort((a,b)=>t(a)-t(b));
+  return rows.sort((a,b)=>((PO[a.pri]??9)-(PO[b.pri]??9))||(tsOf(a)-tsOf(b)));
+}
+function planRowHTML(p,showGroup){
+  const a=AGE(tsOf(p)),c=PRI_COLOR[p.pri]||'#8A8A8A',imgs=p.imgs||[];
+  const g=showGroup?groupName(p.gid):'';
+  return `<div class="p-row" onclick="openPlan('${p.id}')">
+    <div class="edge" style="--e:${c}"></div>
+    ${imgs.length?`<div class="p-th"><img src="${imgs[0].thumb}" alt="">${imgs.length>1?`<span class="p-more">+${imgs.length-1}</span>`:''}</div>`:''}
+    <div class="p-main">
+      <div class="p-title">${esc(planTitle(p))}</div>
+      <div class="p-sub">${g?`<span style="color:#32ADE6">${esc(g)}</span> · `:''}<span style="color:${c}">${esc(p.pri)}</span> · <span style="color:${a.col}">${a.lab}</span></div>
+    </div>
+    <button class="p-done" onclick="setPlanDone('${p.id}',true,event)">✓ Done</button>
+  </div>`;
+}
+function doneRowHTML(p,showGroup){
+  const g=showGroup?groupName(p.gid):'',imgs=p.imgs||[];
+  const when=p.doneAt?'done '+AGE(p.doneAt).lab:'';
+  const sub=showGroup?[g?esc(g):'',when].filter(Boolean).join(' · '):'';
+  return `<div class="p-drow" onclick="openPlan('${p.id}')">
+    ${imgs.length?`<div class="p-th dim"><img src="${imgs[0].thumb}" alt="">${imgs.length>1?`<span class="p-more">+${imgs.length-1}</span>`:''}</div>`:''}
+    <div class="p-main"><div class="p-title">${esc(planTitle(p))}</div>${sub?`<div class="p-sub">${sub}</div>`:''}</div>
+    <button class="p-undo" onclick="setPlanDone('${p.id}',false,event)">Undo</button>
+  </div>`;
+}
+function ringSVG(pct,col,sz){
+  const r=26,C=2*Math.PI*r,d=C*Math.min(100,pct)/100;
+  return `<svg class="ring" width="${sz}" height="${sz}" viewBox="0 0 62 62" aria-hidden="true">
+    <circle cx="31" cy="31" r="26" fill="none" stroke="#262626" stroke-width="6"/>
+    ${pct>0?`<circle cx="31" cy="31" r="26" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${d.toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 31 31)"/>`:''}
+    <text x="31" y="36" text-anchor="middle" fill="${col}" font-size="${pct>=100?13:15}" font-weight="800" font-family="Outfit,system-ui,sans-serif">${pct}%</text></svg>`;
+}
+function groupSub(st,inside){
+  if(!st.n)return inside?'No plans yet.':'No plans yet. Tap to add one.';
+  if(st.done===st.n)return `<span style="color:#30D158;font-weight:800">✓ All done</span> · ${st.n} plan${st.n===1?'':'s'}`;
+  return `<b>${st.n}</b> plan${st.n===1?'':'s'} · <b style="color:#30D158">${st.done}</b> done · <b style="color:#FF9F0A">${st.n-st.done}</b> left`;
+}
+function groupCardHTML(g){
+  const st=groupStats(g.id),pct=pctOf(st.done,st.n),col=pctCol(pct,st.n),full=st.n&&st.done===st.n;
+  return `<div class="grp-card g2 ${!st.n?'g-empty':''} ${full?'full':''}" onclick="openGroup('${g.id}')">
+    <div class="g2-main"><div class="g2-name">${esc(g.name)}</div><div class="g2-sub">${groupSub(st,false)}</div></div>
+    ${st.n?ringSVG(pct,col,60):'<span class="chev">›</span>'}
+  </div>`;
+}
+function renderPlans(){
+  const home=document.getElementById('plansHome'),gv=document.getElementById('planGroupView');
+  const all=DB.plans,n=all.length,doneN=all.filter(p=>p.done).length;
+  const pct=pctOf(doneN,n),col=pctCol(pct,n);
+  document.getElementById('pGroups').textContent=DB.groups.length;
+  document.getElementById('pLeft').textContent=n-doneN;
+  document.getElementById('pDone').textContent=doneN;
+  const ct=document.getElementById('pClearTxt');ct.textContent=pct+'% · '+doneN+' of '+n;ct.style.color=n?col:'#8A8A8A';
+  const cb=document.getElementById('pClearBar');cb.style.width=pct+'%';cb.style.background=col;
+  const ws=weekStart(),wk=all.filter(p=>p.done&&p.doneAt&&p.doneAt>=ws).length;
+  document.getElementById('pWeek').innerHTML=`Done this week: <b style="color:#30D158">${wk}</b>`;
+  [['groups','#32ADE6'],['left','#FF9F0A'],['done','#30D158']].forEach(([k,c])=>{
+    const el=document.getElementById('pbox-'+k);el.classList.toggle('on',k===planView);el.style.setProperty('--sel',c);});
+
+  if(planGroup){
+    const g=DB.groups.find(x=>x.id===planGroup);
+    if(!g){closeGroupView();return;}
+    home.style.display='none';gv.style.display='block';
+    const st=groupStats(g.id),gp=pctOf(st.done,st.n),gc=pctCol(gp,st.n),full=st.n&&st.done===st.n;
+    document.getElementById('groupHead').innerHTML=`
+      <div class="card g2head ${full?'full':''}">
+        <div class="g2-top">
+          <div class="g2-main"><div class="g2-name"><span class="ed" onclick="renameGroup('${g.id}',event)">${esc(g.name)}</span></div><div class="g2-sub">${groupSub(st,true)}</div></div>
+          ${st.n?ringSVG(gp,gc,64):''}
+        </div>
+        <button class="btn-danger" style="width:100%;margin-top:14px" onclick="delGroup('${g.id}')">Delete this group</button>
+      </div>`;
+    const rows=DB.plans.filter(p=>p.gid===g.id);
+    const todo=rows.filter(p=>!p.done).sort((a,b)=>((PO[a.pri]??9)-(PO[b.pri]??9))||(tsOf(b)-tsOf(a)));
+    const dn=rows.filter(p=>p.done).sort((a,b)=>(b.doneAt||tsOf(b))-(a.doneAt||tsOf(a)));
+    let h='';
+    if(!rows.length)h=emptyHTML('📝','Nothing here yet','Tap Add a plan and write what you will do.');
+    else{
+      h+=`<div class="p-sec">To do · ${todo.length}</div>`;
+      h+=todo.length?todo.map(p=>planRowHTML(p,false)).join('')
+        :`<div class="empty" style="padding:22px 16px;margin-bottom:8px"><div class="ico">✅</div><h3>All done here</h3><p>Every plan in this group is finished.</p></div>`;
+      if(dn.length){
+        h+=`<button class="p-dsec" onclick="doneOpen=!doneOpen;renderPlans()"><span>✓ Done · ${dn.length}</span><span>${doneOpen?'▴':'▾'}</span></button>`;
+        if(doneOpen)h+=`<div class="p-dlist">${dn.map(p=>doneRowHTML(p,false)).join('')}</div>`;
+      }
+    }
+    document.getElementById('listPlans').innerHTML=h;
+    return;
+  }
+
+  home.style.display='block';gv.style.display='none';
+  const onGroups=planView==='groups';
+  document.getElementById('pvGroups').style.display=onGroups?'block':'none';
+  document.getElementById('pvList').style.display=onGroups?'none':'block';
+  if(onGroups){
+    document.getElementById('listGroups').innerHTML=DB.groups.length?DB.groups.map(groupCardHTML).join('')
+      :emptyHTML('📋','No groups yet','Tap New group and name it, like YouTube Plans or Plans After Vacation.');
+    return;
+  }
+  const isDone=planView==='done';
+  const base=all.filter(p=>!!p.done===isDone);
+  const gl=DB.groups.filter(g=>base.some(p=>p.gid===g.id));
+  if(pGroupF!=='All'&&!gl.some(g=>g.id===pGroupF))pGroupF='All';
+  document.getElementById('pChips').innerHTML=[{id:'All',name:'All'},...gl].map(g=>
+    `<button class="chip ${g.id===pGroupF?'on':''}" style="--c:#32ADE6" onclick="pGroupF='${g.id}';renderPlans()">${esc(g.name)}</button>`).join('');
+  document.getElementById('pSortRow').innerHTML=[['pri','Importance'],['old','Oldest'],['new','Newest']].map(([k,l])=>
+    `<button class="sort-btn ${k===pSort?'on':''}" onclick="pSort='${k}';renderPlans()">${l}</button>`).join('');
+  const si=document.getElementById('searchP');
+  si.placeholder=isDone?'Search finished plans':'Search plans left to do';
+  const q=si.value.toLowerCase().trim();
+  const rows=sortPlans(base.filter(p=>(pGroupF==='All'||p.gid===pGroupF)
+    &&(!q||(planTitle(p)+' '+(p.text||'')+' '+groupName(p.gid)).toLowerCase().includes(q))),pSort,isDone);
+  let h;
+  if(rows.length)h=isDone?`<div class="p-dlist">${rows.map(p=>doneRowHTML(p,true)).join('')}</div>`:rows.map(p=>planRowHTML(p,true)).join('');
+  else if(!base.length)h=isDone?emptyHTML('🏁','Nothing finished yet','Tap ✓ Done on a plan and it lands here.')
+    :(n?emptyHTML('🎉','All clear','Every plan is done. Add new ones inside a group.'):emptyHTML('📋','No plans yet','Open a group and tap Add a plan.'));
+  else h=emptyHTML('🔍','Nothing matches','Try another word or pick All.');
+  document.getElementById('listAllPlans').innerHTML=h;
+}
+function renameGroup(gid,ev){
+  ev.stopPropagation();
+  const g=DB.groups.find(x=>x.id===gid);
+  const name=prompt('Rename this group',g.name);
+  if(!name||!name.trim())return;
+  g.name=name.trim();save();renderPlans();toast('Saved');
+}
+async function delGroup(gid){
+  const st=groupStats(gid);
+  if(!confirm('Delete this group and its '+st.n+' plan'+(st.n===1?'':'s')+'?'))return;
+  for(const p of DB.plans.filter(x=>x.gid===gid))for(const im of (p.imgs||[]))await idbDel('images',im.id);
+  DB.plans=DB.plans.filter(x=>x.gid!==gid);
+  DB.groups=DB.groups.filter(x=>x.id!==gid);
+  save();closeGroupView();toast('Group deleted');
+}
+async function openPlan(id){
+  const p=DB.plans.find(x=>x.id===id);if(!p)return;
+  const shots=[];
+  for(const im of (p.imgs||[])){const full=await idbGet('images',im.id);shots.push({id:im.id,src:full||im.thumb});}
+  const a=AGE(tsOf(p)),hasT=!!(p.title||'').trim(),g=groupName(p.gid);
+  curDetail='p:'+id;
+  document.getElementById('detailBody').innerHTML=`
+    <div class="d-title ed ${hasT?'':'auto-t'}" onclick="editPlan('title','${p.id}',event)">${esc(planTitle(p))}</div>
+    <div class="d-who" style="color:#32ADE6">${g?'In '+esc(g):'Plan'}${hasT?'':' · <span style="color:#8A8A8A">tap the title to name it</span>'}</div>
+    <div class="p-textbox" onclick="editPlan('text','${p.id}',event)">
+      <div class="top"><span class="lab">Your plan</span><button class="p-copy" onclick="event.stopPropagation();copyPlan('${p.id}')">📋 Copy</button></div>
+      <div class="p-full">${esc(p.text)}</div>
+      <div class="p-tap">Tap the text to edit it</div>
+    </div>
+    <div class="d-meta">
+      <div class="d-cell tap" onclick="openPlanPick('${p.id}',event)"><div class="k">Importance</div><div class="v" style="color:${PRI_COLOR[p.pri]}">${esc(p.pri)}</div></div>
+      <div class="d-cell"><div class="k">Status</div><div class="v" style="color:${p.done?'#30D158':'#FF9F0A'}">${p.done?'Done'+(p.doneAt?' '+AGE(p.doneAt).lab:''):'To do'}</div></div>
+      <div class="d-cell"><div class="k">Added</div><div class="v">${esc(p.added)}</div></div>
+      <div class="d-cell"><div class="k">Age</div><div class="v" style="color:${a.col}">${a.lab}</div></div>
+    </div>
+    ${planPick===p.id?`<div class="pickpanel"><div class="k">Importance</div><div class="row2">
+      ${PRIS.map(o=>`<button class="chip ${o===p.pri?'on':''}" style="--c:${PRI_COLOR[o]}" onclick="setPlanPri('${p.id}','${o}')">${o}</button>`).join('')}</div></div>`:''}
+    ${shots.map((sh,n)=>`<img class="big-shot" src="${sh.src}" alt="">
+      <div class="btn-row" style="margin:-4px 0 12px">
+        <button class="btn-half blue" onclick="saveImage('${sh.src}',${n})">⬇ Save to gallery</button>
+        <button class="btn-danger" style="flex:1" onclick="removeShot('${p.id}','${sh.id}')">Remove</button>
+      </div>`).join('')}
+    <button class="btn-half blue" style="width:100%" onclick="addPlanShot('${p.id}')">📷 Add screenshot</button>
+    <div class="tiphint" style="margin-top:8px">Tap the title or the text to change it.</div>
+    <button class="${p.done?'btn-half':'btn-green'}" style="width:100%" onclick="planDoneFromDetail('${p.id}',${!p.done})">${p.done?'↩ Mark as not done':'✓ Mark as done'}</button>
+    <div class="btn-row">
+      <button class="btn-danger" style="flex:1" onclick="delPlan('${p.id}')">Delete</button>
+    </div>
+    <button class="btn-half" style="width:100%;margin-top:10px" onclick="closeModal('detailModal')">Close</button>`;
+  openModal('detailModal');
+}
+function editPlan(field,id,ev){
+  const p=DB.plans.find(x=>x.id===id);if(!p)return;
+  startEdit(ev,{val:field==='title'?(p.title||''):p.text,multi:field==='text',
+    ph:field==='title'?'A few words about this plan':'Write the full plan here',
+    save:(v,re)=>{
+      const t=v.trim();let ch=false;
+      if(field==='title'){if(t!==(p.title||'')){p.title=t;ch=true;}}
+      else if(!t)toast('A plan needs some text');
+      else if(t!==p.text){p.text=t;ch=true;}
+      if(ch)save();
+      renderPlans();
+      if(re&&isOpen('detailModal'))openPlan(id);
+      if(ch)toast('Saved');
+    },
+    cancel:()=>openPlan(id)});
+}
+function openPlanPick(id,ev){ev.stopPropagation();planPick=planPick===id?null:id;openPlan(id);}
+function setPlanPri(id,val){const p=DB.plans.find(x=>x.id===id);p.pri=val;planPick=null;save();renderPlans();openPlan(id);toast('Saved');}
+function addPlanShot(id){pendingPlanImg=id;document.getElementById('pImg').click();}
+document.getElementById('pImg').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f||!pendingPlanImg)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    const full=await shrink(ev.target.result,1080,0.82);
+    const th=await shrink(ev.target.result,160,0.5);
+    if(pendingPlanImg==='__form__'){
+      pfImgs.push({full:full,thumb:th});pendingPlanImg=null;
+      document.getElementById('pImg').value='';renderPfShots();toast('Screenshot added');return;
+    }
+    const p=DB.plans.find(x=>x.id===pendingPlanImg);
+    if(p){const imId=uid();await idbPut('images',imId,full);
+      p.imgs=p.imgs||[];p.imgs.push({id:imId,thumb:th});save();}
+    const back=pendingPlanImg;pendingPlanImg=null;
+    document.getElementById('pImg').value='';
+    renderPlans();openPlan(back);toast('Screenshot added');
+  };
+  r.readAsDataURL(f);
+});
+async function removeShot(pid,imId){
+  if(!confirm('Remove this screenshot?'))return;
+  const p=DB.plans.find(x=>x.id===pid);
+  p.imgs=(p.imgs||[]).filter(x=>x.id!==imId);
+  await idbDel('images',imId);save();renderPlans();openPlan(pid);toast('Removed');
+}
+async function delPlan(id){
+  if(!confirm('Delete this plan?'))return;
+  const p=DB.plans.find(x=>x.id===id);
+  for(const im of (p.imgs||[]))await idbDel('images',im.id);
+  DB.plans=DB.plans.filter(x=>x.id!==id);
+  save();closeModal('detailModal');renderPlans();toast('Deleted');
+}
+function normPlan(o){return {id:o.id||uid(),ts:o.ts||0,gid:o.gid||'',title:o.title||'',text:o.text||'',done:!!o.done,
+  doneAt:+o.doneAt||0,pri:normPri(o.pri),imgs:Array.isArray(o.imgs)?o.imgs:[],added:o.added||today()};}
+
+
+/* ---- plan form ---- */
+let pfImgs=[], pfPri='Important';
+function dayNum(ts){const d=new Date(ts);d.setHours(0,0,0,0);return d.getTime();}
+function AGE(ts){
+  const d=Math.max(0,Math.round((dayNum(Date.now())-dayNum(ts||Date.now()))/86400000));
+  const col=d<=3?'#30D158':d<=9?'#FFD60A':d<=20?'#FF9F0A':'#FF453A';
+  const lab=d<=0?'today':d===1?'1 day ago':d<14?d+' days ago':d<30?Math.floor(d/7)+' weeks ago':Math.floor(d/30)<=1?'1 month ago':Math.floor(d/30)+' months ago';
+  return {col,lab,d};
+}
+function buildPfPicks(){
+  document.getElementById('pfPicks').innerHTML=PRIS.map(o=>
+    `<button class="pick ${o===pfPri?'on':''}" style="--c:${PRI_COLOR[o]}" onclick="pfPri='${o}';buildPfPicks()">${o}</button>`).join('');
+}
+function renderPfShots(){
+  document.getElementById('pfShots').innerHTML=pfImgs.map((im,n)=>
+    `<img class="shot" src="${im.thumb}" alt="" onclick="pfImgs.splice(${n},1);renderPfShots();toast('Removed')">`).join('');
+  document.getElementById('pfShotHint').style.display=pfImgs.length?'block':'none';
+}
+function pickPlanFormShot(){pendingPlanImg='__form__';document.getElementById('pImg').click();}
+let pfGid='';
+function findGroupByName(n){
+  const t=(n||'').trim().toLowerCase();if(!t)return null;
+  const ex=DB.groups.find(g=>g.name.trim().toLowerCase()===t);if(ex)return ex;
+  const loose=DB.groups.filter(g=>{const x=g.name.trim().toLowerCase();return x.includes(t)||t.includes(x);});
+  return loose.length===1?loose[0]:null;
+}
+function buildPfGroups(){
+  document.getElementById('pfGroups').innerHTML=DB.groups.map(g=>
+    `<button class="pick ${g.id===pfGid?'on':''}" style="--c:#32ADE6" onclick="pickPfGroup('${g.id}')">${esc(g.name)}</button>`).join('')
+    +`<button class="pick ${pfGid==='__new__'?'on':''}" style="--c:#30D158" onclick="pickPfGroup('__new__')">+ New group</button>`;
+  document.getElementById('pfNewWrap').style.display=pfGid==='__new__'?'block':'none';
+}
+function pickPfGroup(id){
+  pfGid=id;document.getElementById('pfGroupNote').textContent='';buildPfGroups();
+  if(id==='__new__')setTimeout(()=>document.getElementById('pfNewGroup').focus(),60);
+}
+function fillPlanForm(d){
+  if(d.title)document.getElementById('pfName').value=d.title;
+  if(d.text)document.getElementById('pfText').value=d.text;
+  if(d.pri)pfPri=d.pri;
+  const note=document.getElementById('pfGroupNote');note.textContent='';
+  const nm=(d.group||'').trim();
+  if(nm){
+    const g=findGroupByName(nm);
+    if(g)pfGid=g.id;
+    else{
+      document.getElementById('pfNewGroup').value=nm;
+      if(planGroup&&pfGid===planGroup)note.textContent='The reply suggested a new group called "'+nm+'". Tap + New group if you want it there.';
+      else{pfGid='__new__';note.textContent='A new group called "'+nm+'" will be created.';}
+    }
+  }
+  buildPfPicks();buildPfGroups();
+}
+function openPlanForm(prefill){
+  pfImgs=[];pfPri='Important';
+  pfGid=planGroup||(DB.groups.length?'':'__new__');
+  document.getElementById('pfTitle').textContent=prefill?'Review and add':'New plan';
+  document.getElementById('pfName').value='';
+  document.getElementById('pfText').value='';
+  document.getElementById('pfNewGroup').value='';
+  document.getElementById('pfGroupNote').textContent='';
+  buildPfPicks();buildPfGroups();renderPfShots();
+  if(prefill)fillPlanForm(prefill);
+  openModal('planModal');
+  document.querySelector('#planModal .modal-box').scrollTop=0;
+  if(!prefill)setTimeout(()=>document.getElementById('pfName').focus(),150);
+}
+async function savePlanForm(){
+  const ti=document.getElementById('pfName').value.trim();
+  const t=document.getElementById('pfText').value.trim()||ti;
+  if(!t){toast('Write the plan first');return;}
+  let gid=pfGid;
+  if(gid==='__new__'){
+    const nm=document.getElementById('pfNewGroup').value.trim();
+    if(!nm){toast('Name the new group first');return;}
+    const ex=DB.groups.find(g=>g.name.trim().toLowerCase()===nm.toLowerCase());
+    if(ex)gid=ex.id;else{gid=uid();DB.groups.unshift({id:gid,ts:Date.now(),name:nm,added:today()});}
+  }
+  if(!gid||!DB.groups.some(g=>g.id===gid)){toast('Pick a group for this plan');return;}
+  const id=uid(),imgs=[];
+  for(const im of pfImgs){const imId=uid();await idbPut('images',imId,im.full);imgs.push({id:imId,thumb:im.thumb});}
+  DB.plans.unshift({id:id,ts:Date.now(),gid:gid,title:ti,text:t,done:false,doneAt:0,pri:pfPri,imgs:imgs,added:today()});
+  pfImgs=[];
+  save();closeModal('planModal');renderPlans();toast('Added to '+groupName(gid));
+}
+/* ---- PLAN paste blocks ---- */
+const PLAN_KEYS=['PLAN','GROUP','IMPORTANCE','PRIORITY','DETAILS','STEPS'];
+function isPlanBlock(t){return !!t&&/^\s*\**\s*PLAN\s*\**\s*:/im.test(t)&&!/^\s*\**\s*(TITLE|IDEA)\s*\**\s*:/im.test(t);}
+function planPri(v){
+  const t=(v||'').trim().toLowerCase();
+  if(/^(high|urgent|top|critical)/.test(t))return 'Very Important';
+  if(/^(medium|mid|moderate)/.test(t))return 'Important';
+  if(/^(low|minor)/.test(t))return 'Normal';
+  return normPri(v);
+}
+function parsePlan(txt){
+  if(!isPlanBlock(txt))return null;
+  const out={};let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*\**\s*([A-Za-z]{4,10})\s*\**\s*:\s*(.*)$/);
+    if(m&&PLAN_KEYS.includes(m[1].toUpperCase())){cur=m[1].toUpperCase();out[cur]=m[2].replace(/^\*+|\*+$/g,'').trim();}
+    else if(cur)out[cur]=(out[cur]?out[cur]+'\n':'')+line.trim();
+  });
+  const title=(out.PLAN||'').split('\n')[0].trim();
+  const text=(out.DETAILS||out.STEPS||'').split('\n').map(s=>s.trim()).join('\n').trim();
+  if(!title&&!text)return null;
+  return {title:title,group:(out.GROUP||'').split('\n')[0].trim(),pri:planPri(out.IMPORTANCE||out.PRIORITY),text:text||title};
+}
+async function pastePlan(){
+  const txt=await readClip();if(txt===null)return;
+  if(isPlanBlock(txt)){const d=parsePlan(txt);if(d){openPlanForm(d);return;}}
+  if(isIdeaBlock(txt)){const di=parseIdea(txt);if(di){setMode('ideas');await openIdeaForm(null,di);toast('That was an idea, so it went to Ideas');return;}}
+  const v=parseBlock(txt);
+  if(v){setMode('learn');await openForm(null,v);toast('That was a video, so it went to Learn');return;}
+  toast('Nothing readable. Copy the whole reply.');
+}
+async function pastePlanIntoForm(){
+  const txt=await readClip();if(txt===null)return;
+  const d=parsePlan(txt);
+  if(!d){toast('That is not a PLAN reply. Copy the whole reply.');return;}
+  fillPlanForm(d);toast('Filled in. Check it, then add it.');
+}
+function planPrompt(){
+  const gs=DB.groups.map(g=>g.name).join(', ')||'none yet';
+  return `PLAN
+
+Turn what I describe below into one plan for my Vault app.
+
+Reply with ONLY this block. No intro, no extra text.
+
+PLAN: a short clear title, 3 to 7 words
+GROUP: the best fit from my groups (${gs}), or a short new group name if none fit
+IMPORTANCE: Very Important or Important or Normal
+DETAILS:
+- 2 to 6 lines, each starting with a dash, clear steps or points
+
+My plan: `;
+}
+function copyPlanPrompt(){copyText(planPrompt(),'Plan prompt copied. Add what you want to do after it.');}
+function copyPlan(id){
+  const p=DB.plans.find(x=>x.id===id);
+  copyText(p.text,'Plan copied');
+}
+
+function saveImage(src,n){
+  try{
+    const a=document.createElement('a');
+    a.href=src;a.download='vault-'+today()+'-'+(n+1)+'.jpg';
+    document.body.appendChild(a);a.click();a.remove();
+    toast('Saved to your downloads');
+  }catch(e){toast('Could not save that image');}
+}
+
+/* ---- migration ---- */
+function normalize(o){
+  return {id:o.id||uid(),status:o.status==='towatch'?'vault':(o.status||'vault'),
+    link:o.link||'',title:o.title||'Untitled video',who:o.who||'',source:o.source||'Other',
+    cls:o.cls||'Other',tags:o.tags||[],len:o.len||'5 to 15 min',pri:normPri(o.pri),
+    learn:o.learn||'',why:o.why||'',lesson:o.lesson||'',applied:!!o.applied,
+    added:o.added||today(),done:o.done||'',hasImg:!!o.hasImg||!!o.img||!!o.thumb,thumb:o.thumb||'',ts:o.ts||0};
+}
+async function adoptV2(items){
+  const out=[];
+  for(const o of items){
+    const it=normalize(o);
+    if(o.img){
+      const full=await shrink(o.img,1080,0.82), th=await shrink(o.img,220,0.55);
+      await idbPut('images',it.id,full||o.img);await idbPut('thumbs',it.id,th||o.img);
+      THUMBS[it.id]=th||o.img;it.thumb=th||'';it.hasImg=true;
+    }
+    out.push(it);
+  }
+  DB={items:out};
+}
+async function migrate(){
+  if(localStorage.getItem(KEY))return false;
+  const v4=localStorage.getItem(OLD4);
+  if(v4){try{const d=JSON.parse(v4);
+    if(d.items&&d.items.length){DB={items:d.items.map(normalize)};save();
+      toast('Moved '+d.items.length+' item'+(d.items.length===1?'':'s')+' from v4');return true;}}catch(e){}}
+  const v3=localStorage.getItem(OLD3);
+  if(v3){try{const d=JSON.parse(v3);
+    if(d.items&&d.items.length){DB={items:d.items.map(normalize)};save();
+      toast('Moved '+d.items.length+' item'+(d.items.length===1?'':'s')+' from v3');return true;}}catch(e){}}
+  const v2=localStorage.getItem(OLD2);
+  if(v2){try{const d=JSON.parse(v2);
+    if(d.items&&d.items.length){await adoptV2(d.items);save();
+      toast('Moved '+d.items.length+' item'+(d.items.length===1?'':'s')+' from v2');return true;}}catch(e){}}
+  return false;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m=>m.onclick=e=>{if(e.target===m)closeFormSafely(m.id);});
+
+(async function init(){
+  loadText();
+  buildPickers();
+  page='home';
+  const isIdeas=DB.mode==='ideas';
+  document.getElementById('mode-learn').classList.toggle('on',!isIdeas);
+  document.getElementById('mode-ideas').classList.toggle('on',isIdeas);
+  document.getElementById('learnHome').style.display=isIdeas?'none':'block';
+  document.getElementById('ideasHome').style.display=isIdeas?'block':'none';
+  renderNav();go('home');
+  IDB=await idbOpen();
+  if(await migrate())render();
+  const t=await idbAll('thumbs');
+  THUMBS=Object.assign(t,THUMBS);
+  let moved=false;
+  DB.items.forEach(it=>{if(!it.thumb&&THUMBS[it.id]){it.thumb=THUMBS[it.id];it.hasImg=true;moved=true;}});
+  DB.ideas.forEach(it=>{if(!it.thumb&&THUMBS[it.id]){it.thumb=THUMBS[it.id];it.hasImg=true;moved=true;}});
+  if(moved)save();
+  render();renderIdeas();renderPlans();renderStorage();
+  if(navigator.storage&&navigator.storage.persist&&navigator.storage.persisted){
+    const already=await navigator.storage.persisted();
+    if(!already)navigator.storage.persist();
+  }
+})();
+</script>
+<script>
+// v20: installable app. Registers the offline file and shows an Install button when Chrome allows. Does not touch saved data.
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});});}
+(function(){
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  var deferred=null;
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();deferred=e;
+    if(standalone||document.getElementById('pvInstallBtn'))return;
+    var b=document.createElement('button');b.id='pvInstallBtn';b.type='button';b.textContent='\u2B07 Install Vault';
+    b.style.cssText='position:fixed;right:14px;bottom:96px;z-index:9999;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:11px 16px;background:#FFD60A;color:#000;font:800 13px Outfit,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.45)';
+    b.addEventListener('click',function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;b.remove();});});
+    document.body.appendChild(b);
+  });
+  window.addEventListener('appinstalled',function(){deferred=null;var b=document.getElementById('pvInstallBtn');if(b)b.remove();});
+})();
+</script>
+</body>
+</html>
