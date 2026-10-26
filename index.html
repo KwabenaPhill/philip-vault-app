@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Philip's Vault v24.2</title>
+<title>Philip's Vault v24.3</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
@@ -290,7 +290,7 @@ textarea.ed-box{resize:none;overflow:hidden;line-height:1.5}
 
 <div class="app-header">
   <div class="sub">Philip's</div>
-  <h1>Vault</h1><span class="ver">v24.2</span>
+  <h1>Vault</h1><span class="ver">v24.3</span>
 </div>
 
 <div class="mode-sw">
@@ -2120,6 +2120,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
   async function toFile(data,name){ try{ var b=await (await fetch(data)).blob(); return new File([b],name,{type:b.type||'image/jpeg'}); }catch(e){ return null; } }
   async function share(text,pics){
     var files=[]; for(var n=0;n<pics.length&&n<10;n++){ var f=await toFile(pics[n],'vault-'+(n+1)+'.jpg'); if(f) files.push(f); }
+    try{ await navigator.clipboard.writeText(text); }catch(e){}
+    if(files.length){ files.unshift(new File([text],'Vault message.txt',{type:'text/plain'})); toast('Text is in the file and copied: you can also paste it'); }
     try{
       if(files.length&&navigator.canShare&&navigator.canShare({files:files})){ await navigator.share({text:text,files:files}); return; }
       if(navigator.share){ await navigator.share({text:text}); if(files.length) toast('Pictures could not be attached on this phone. Text sent.'); return; }
