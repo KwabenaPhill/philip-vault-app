@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Philip's Vault v24</title>
+<title>Philip's Vault v24.1</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
@@ -290,7 +290,7 @@ textarea.ed-box{resize:none;overflow:hidden;line-height:1.5}
 
 <div class="app-header">
   <div class="sub">Philip's</div>
-  <h1>Vault</h1><span class="ver">v24</span>
+  <h1>Vault</h1><span class="ver">v24.1</span>
 </div>
 
 <div class="mode-sw">
@@ -2066,6 +2066,35 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     document.body.appendChild(b);
   });
   window.addEventListener('appinstalled',function(){deferred=null;var b=document.getElementById('pvInstallBtn');if(b)b.remove();});
+})();
+</script>
+<script>
+// v24.1: voice typing. A Speak button under every writing box: talk, it types for you.
+(function(){
+  var css=document.createElement('style');
+  css.textContent='.vt-mic{display:inline-flex;align-items:center;gap:6px;margin:-4px 0 10px;padding:8px 14px;border-radius:12px;border:1px solid #444;background:#1E1E1E;color:#fff;font:600 13px inherit;cursor:pointer}.vt-mic.rec{background:#C0392B;border-color:#C0392B}';
+  document.head.appendChild(css);
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, live=null;
+  function addMic(box){
+    if(box.dataset.vt||box.type==='url'||box.type==='number'||box.type==='date'||box.classList.contains('search-input')||box.inputMode==='url') return;
+    box.dataset.vt='1';
+    var b=document.createElement('button'); b.type='button'; b.className='vt-mic'; b.textContent='🎤 Speak';
+    b.onclick=function(){
+      if(!SR){ alert('Voice typing is not in this browser. Tap the box and use the 🎤 on your keyboard instead.'); box.focus(); return; }
+      if(live){ var was=live.btn; live.rec.stop(); if(was===b) return; }
+      var rec=new SR(); rec.lang='en-GB'; rec.continuous=true; rec.interimResults=false;
+      var base=box.value, got='';
+      rec.onresult=function(e){ for(var i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) got+=e.results[i][0].transcript+' ';
+        var sep=box.tagName==='TEXTAREA'?'\n':' '; box.value=(base?base+(base.endsWith('\n')?'':sep):'')+got.trim(); box.dispatchEvent(new Event('input',{bubbles:true})); };
+      rec.onend=function(){ live=null; b.textContent='🎤 Speak'; b.classList.remove('rec'); };
+      rec.onerror=function(ev){ if(ev&&ev.error==='not-allowed') alert('Allow the microphone for this app, then tap Speak again.'); };
+      rec.start(); live={rec:rec,btn:b}; b.textContent='⏹ Stop'; b.classList.add('rec');
+    };
+    box.insertAdjacentElement('afterend',b);
+  }
+  function scan(root){ (root.querySelectorAll?root:document).querySelectorAll('textarea.modal-input, input.modal-input').forEach(addMic); }
+  scan(document);
+  new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1){ if(n.matches&&n.matches('textarea.modal-input, input.modal-input')) addMic(n); scan(n); } }); }); }).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 </body>
