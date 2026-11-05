@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Philip's Vault v25</title>
+<title>Philip's Vault v25.1</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
@@ -290,7 +290,7 @@ textarea.ed-box{resize:none;overflow:hidden;line-height:1.5}
 
 <div class="app-header">
   <div class="sub">Philip's</div>
-  <h1>Vault</h1><span class="ver">v25</span>
+  <h1>Vault</h1><span class="ver">v25.1</span>
 </div>
 
 <div class="mode-sw">
@@ -827,10 +827,11 @@ function parseBlock(txt){
     const v=(val||'').toLowerCase();
     return list.find(x=>x.toLowerCase()===v)||list.find(x=>v.includes(x.toLowerCase()))||def;
   };
-  const linkM=txt.match(/https?:\/\/\S+/);
+  const linkM=txt.match(/https?:\/\/\S+/i);   /* v25.1: "Https://" (capital H from the Gem) was missed */
   let link=out.LINK||'';
-  const lm=link.match(/https?:\/\/\S+/);
-  link=lm?lm[0]:(linkM?linkM[0]:'');
+  const lm=link.match(/https?:\/\/\S+/i);
+  link=lm?lm[0]:(linkM?linkM[0]:(/^(www\.|[a-z0-9-]+\.[a-z]{2,}\/)/i.test(link.trim())?'https://'+link.trim():''));
+  link=link.replace(/^https?:\/\//i,m=>m.toLowerCase()).replace(/[)\].,]+$/,'');
   let lesson=out.LESSON||'';
   if(/^https?:\/\//i.test(lesson)||/^link\s*:/i.test(lesson))lesson='';
   return {
