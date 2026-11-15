@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Philip's Vault v25.1</title>
+<title>Philip's Vault v25.2</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
@@ -290,7 +290,7 @@ textarea.ed-box{resize:none;overflow:hidden;line-height:1.5}
 
 <div class="app-header">
   <div class="sub">Philip's</div>
-  <h1>Vault</h1><span class="ver">v25.1</span>
+  <h1>Vault</h1><span class="ver">v25.2</span>
 </div>
 
 <div class="mode-sw">
@@ -2368,5 +2368,43 @@ function voiceTyping(btn,box,tell){
   draw();
 })();
 </script>
+
+<script>
+/* PIC VIEW (Philip, 15 Nov 2026, Fix Hub #1794759022709): in Fix notes, tap any picture to see it full size.
+   Voice recording keeps going: the viewer only sits on top, it never touches the Speak button or the microphone.
+   ‹ › = other pictures of the same note, tap the dark part or ✕ to go back. */
+(function(){
+  if(window.__fxPicView)return;window.__fxPicView=1;
+  let L=[],i=0,v=null;
+  function make(){
+    v=document.createElement('div');v.id='fxPicView';
+    v.style.cssText='display:none;position:fixed;inset:0;z-index:2147483600;background:rgba(0,0,0,.94);flex-direction:column;align-items:center;justify-content:center;padding:12px';
+    const b='background:#1c1c1f;color:#fff;border:1px solid #333;border-radius:12px;font:700 16px system-ui,sans-serif;padding:10px 16px;min-width:48px;cursor:pointer';
+    v.innerHTML='<div id="fxPicRec" style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:14px;color:#ff5a5f;font:700 13px system-ui,sans-serif"></div>'+
+      '<img id="fxPicImg" alt="" style="max-width:100%;max-height:80vh;object-fit:contain;border-radius:10px;touch-action:pinch-zoom">'+
+      '<div style="display:flex;gap:10px;align-items:center;margin-top:14px"><button data-pv="-1" style="'+b+'">‹</button><span id="fxPicN" style="color:#bbb;font:600 13px system-ui,sans-serif;min-width:44px;text-align:center"></span><button data-pv="1" style="'+b+'">›</button><button data-pv="0" style="'+b+'">✕ Close</button></div>';
+    document.body.appendChild(v);
+    v.addEventListener('click',e=>{e.stopPropagation();const k=e.target.closest('[data-pv]');
+      if(k){const d=+k.dataset.pv;if(!d){hide();return;}i=(i+d+L.length)%L.length;show();return;}
+      if(e.target===v)hide();});
+    let x0=null;v.addEventListener('touchstart',e=>{x0=e.touches.length===1?e.touches[0].clientX:null;},{passive:true});
+    v.addEventListener('touchend',e=>{if(x0===null||L.length<2)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>60){i=(i+(dx<0?1:-1)+L.length)%L.length;show();}},{passive:true});
+  }
+  function rec(){const s=document.getElementById('fxSheet');return !!(s&&s.querySelector('.rec'));}
+  function show(){v.querySelector('#fxPicImg').src=L[i];v.querySelector('#fxPicN').textContent=L.length>1?(i+1)+' / '+L.length:'';
+    v.querySelectorAll('[data-pv="-1"],[data-pv="1"]').forEach(x=>x.style.visibility=L.length>1?'visible':'hidden');
+    v.querySelector('#fxPicRec').textContent=rec()?'🎤 Still recording':'';}
+  function hide(){if(v)v.style.display='none';}
+  setInterval(()=>{if(v&&v.style.display==='flex')v.querySelector('#fxPicRec').textContent=rec()?'🎤 Still recording':'';},1000);
+  document.addEventListener('click',e=>{
+    const im=e.target&&e.target.closest&&e.target.closest('#fxSheet img');if(!im||!im.src)return;
+    e.preventDefault();e.stopPropagation();
+    const box=im.parentElement.closest('#fxNewPics,.note,div')||im.parentElement;
+    L=[...box.querySelectorAll('img')].map(x=>x.src).filter(Boolean);i=Math.max(0,L.indexOf(im.src));if(!L.length)L=[im.src];
+    if(!v)make();v.style.display='flex';show();},true);
+  document.addEventListener('keydown',e=>{if(v&&v.style.display==='flex'){if(e.key==='Escape')hide();else if(e.key==='ArrowRight'&&L.length>1){i=(i+1)%L.length;show();}else if(e.key==='ArrowLeft'&&L.length>1){i=(i-1+L.length)%L.length;show();}}});
+})();
+</script>
+
 </body>
 </html>
