@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Philip's Vault v26.3</title>
+<title>Philip's Vault v26.4</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
@@ -522,7 +522,7 @@ body[data-pg="settings"] .hdr{display:none}
 <body>
 
 <div class="hdr" id="hdr">
-  <div class="hdr-title">Philip's Vault <span class="hdr-ver">v26.3</span></div>
+  <div class="hdr-title">Philip's Vault <span class="hdr-ver">v26.4</span></div>
   <div class="hdr-pill" id="hdrPill"></div>
 </div>
 
@@ -562,22 +562,6 @@ body[data-pg="settings"] .hdr{display:none}
     <div class="summary-box sw-box" id="lbox-learned" onclick="setList('learned')"><div class="box-label">Learned</div><div class="box-val" id="sLearn">0</div></div>
   </div>
   <div id="upNext"></div>
-
-  <div class="capture">
-    <div class="cap-h"><b>Add a video</b><small>Copy AI reply, then Paste</small></div>
-    <div class="cap-row">
-      <button class="cap-btn cap-ai" onclick="pasteNew()"><svg class="v26-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V2.5h6V4M9 11h6M9 15h4"/></svg>Paste</button>
-      <button class="cap-btn cap-link" onclick="openForm()">Fill it in myself</button>
-    </div>
-  </div>
-  <div id="backlogWarn"></div>
-
-  <div id="freeMoment"><div class="v26-fm">
-    <b><svg class="v26-i g" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>Free moment?</b>
-    <button class="time-btn" id="tb-short" onclick="openTime('short')">5 min</button>
-    <button class="time-btn" id="tb-mid" onclick="openTime('mid')">20 min</button>
-    <button class="time-btn" id="tb-long" onclick="openTime('long')">1 hr</button>
-  </div></div>
 
   <div class="v26-srch">
     <input class="search-input" id="search" placeholder="Search title, creator or keyword" oninput="render()">
@@ -661,7 +645,7 @@ body[data-pg="settings"] .hdr{display:none}
 <div class="page" id="page-settings">
   <div class="v26-prof">
     <button class="v26-av" id="v26Av" aria-label="Add profile picture" onclick="document.getElementById('v26AvFile').click()">P</button>
-    <div style="flex:1;min-width:0"><b>Philip</b><small>Vault v26.3</small></div>
+    <div style="flex:1;min-width:0"><b>Philip</b><small>Vault v26.4</small></div>
     <button class="v26-lk" id="v26AvRm" onclick="v26RmProfile()" style="display:none">Remove</button>
     <input type="file" id="v26AvFile" accept="image/*" style="display:none" onchange="v26SetProfile(event)">
   </div>
@@ -1057,6 +1041,7 @@ function go(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelector('.mode-sw').style.display=(p==='home')?'flex':'none';
+  if(typeof updAddBtn==='function')updAddBtn();
   renderNav();window.scrollTo(0,0);
   if(p==='plans')renderPlans();
   else if(p==='settings'){renderStorage();render();}
@@ -1348,8 +1333,6 @@ function render(){
   document.getElementById('clearSub').innerHTML=DB.items.length?`<b>${l.length} of ${DB.items.length}</b> learned · ${w.length} watching`:'Nothing saved yet';
   document.getElementById('modeLearnN').textContent=v.length;
   document.getElementById('modeIdeasN').textContent=(DB.ideas||[]).filter(i=>i.status!=='done').length;
-  document.getElementById('backlogWarn').innerHTML=v.length>=30
-    ?`<div class="warn">${svgI('alert')}<span><b>${v.length} videos waiting.</b> Clear a few first.</span></div>`:'';
   pillV26();
 
   ['vault','watching','learned'].forEach(k=>{
@@ -1362,7 +1345,6 @@ function render(){
   const active=listTab==='watching'?w:listTab==='learned'?l:v;
   if(filterClass!=='All'&&!active.some(i=>i.cls===filterClass))filterClass='All';
   document.getElementById('chips').innerHTML=chipRow(active,filterClass,'filterClass');
-  document.getElementById('freeMoment').style.display=listTab==='vault'?'block':'none';
   document.getElementById('search').placeholder=listTab==='learned'?'Search your lessons':listTab==='watching'?'Search what you are watching':'Search title, creator or keyword';
 
   const q=document.getElementById('search').value.toLowerCase().trim();
@@ -2502,6 +2484,31 @@ window.addEventListener('load',v26InstShow);
   bar('listGroups','p','✳ Send all plans to Claude');
   bar('listPlans','p','✳ Send this group to Claude');
 })();
+</script>
+<!-- v26.4 (Philip, 16 Nov 2026): Add a video moved into a green + button above Fix notes; Free moment and videos-waiting banner removed -->
+<style>
+#addBtn{position:fixed;right:16px;bottom:166px;z-index:9998;width:48px;height:48px;border-radius:50%;border:0;background:#16A34A;color:#fff;font-size:30px;font-weight:400;line-height:48px;padding:0;display:none;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#addBtn:active{transform:scale(.94)}
+#addSheet{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:none}
+#addSheet .in{position:absolute;left:0;right:0;bottom:0;background:#141416;border-top:1px solid #1F2023;border-radius:22px 22px 0 0;padding:16px 16px 30px;animation:popIn .24s cubic-bezier(.22,.8,.3,1) both}
+#addSheet .grab{width:38px;height:4px;border-radius:2px;background:#2C2D31;margin:0 auto 14px}
+#addSheet h3{margin:0 0 4px;font-size:16px;font-weight:800;color:#F4F4F5}
+#addSheet small{display:block;font-size:12px;color:#8B8F97;margin-bottom:14px}
+#addSheet .cap-btn{width:100%;height:50px;margin-bottom:10px;font-size:15px}
+</style>
+<button id="addBtn" title="Add a video" onclick="openAdd()">+</button>
+<div id="addSheet" onclick="if(event.target===this)closeAdd()"><div class="in">
+  <div class="grab"></div>
+  <h3>Add a video</h3>
+  <small>Copy AI reply, then Paste</small>
+  <button class="cap-btn cap-ai" onclick="closeAdd();pasteNew()"><svg class="v26-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V2.5h6V4M9 11h6M9 15h4"/></svg>Paste</button>
+  <button class="cap-btn cap-link" onclick="closeAdd();openForm()">Fill it in myself</button>
+</div></div>
+<script>
+function updAddBtn(){const b=document.getElementById('addBtn');if(b)b.style.display=(page==='home'&&DB.mode!=='ideas')?'flex':'none';}
+function openAdd(){document.getElementById('addSheet').style.display='block';}
+function closeAdd(){document.getElementById('addSheet').style.display='none';}
+updAddBtn();
 </script>
 <!-- v24.4 (Philip, 28 Oct 2026): FIX NOTES - save fixes and ideas with pictures and voice, then send them all to Claude in one go -->
 <style>
